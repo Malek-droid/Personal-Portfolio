@@ -4,6 +4,8 @@ import { MysticCat } from "@/components/MysticCat";
 import { ParticleCat } from "@/components/ParticleCat";
 import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 import { BinaryText } from "@/components/BinaryText";
+import { CommandTerminal } from "@/components/CommandTerminal";
+import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -117,8 +119,31 @@ const GhostBtn = ({ children, href = "#" }: { children: React.ReactNode; href?: 
   <a href={href} className="btn-ghost">{children}</a>
 );
 
-const Terminal = ({ title, lines }: { title: string; lines: { t: string; c?: string }[] }) => (
-  <div className="bg-[#0d0d0d] border border-[#222] relative">
+const Terminal = ({
+  title,
+  lines,
+  onClick,
+  onKeyDown,
+  role,
+  tabIndex,
+  ariaLabel,
+}: {
+  title: string;
+  lines: { t: string; c?: string }[];
+  onClick?: () => void;
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
+  role?: string;
+  tabIndex?: number;
+  ariaLabel?: string;
+}) => (
+  <div
+    className={`bg-[#0d0d0d] border border-[#222] relative ${onClick ? "cursor-pointer" : ""}`}
+    onClick={onClick}
+    onKeyDown={onKeyDown}
+    role={role}
+    tabIndex={tabIndex}
+    aria-label={ariaLabel}
+  >
     <div className="flex items-center px-4 py-3 border-b border-[#1e1e1e] relative">
       <div className="flex gap-2">
         <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
@@ -657,11 +682,18 @@ function Index() {
 
   const techs = ["Java", "C#", "C++", "Python", "C", "JavaScript", "TypeScript", "React", "HTML", "CSS", "Tailwind CSS", "DaisyUI", "Node.js", "Express.js", "REST APIs", "Socket.io", "JWT", "Swagger", "Groq", "LLaMA 3.1", "MongoDB", "MySQL", "SQLite", "Git", "GitHub", "Postman", "Jest", "Playwright", "Docker", "Cloudinary", "Puppeteer"];
 
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  useCommandTerminalShortcut(
+    isTerminalOpen,
+    () => setIsTerminalOpen(true),
+    () => setIsTerminalOpen(false)
+  );
 
   return (
     <div className="min-h-screen bg-black text-white">
       <CursorGlow />
       <FlashlightSpotlight />
+      <CommandTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#0d0d0d] border-b border-[#1a1a1a]">
@@ -702,6 +734,16 @@ function Index() {
           </div>
           <Terminal
             title="~/portfolio — zsh"
+            role="button"
+            tabIndex={0}
+            ariaLabel="Open terminal command palette"
+            onClick={() => setIsTerminalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setIsTerminalOpen(true);
+              }
+            }}
             lines={[
               { t: "$ deploy --agent ai-portfolio --env production", c: "text-white" },
               { t: "▸ building bundle...", c: "text-[#999]" },

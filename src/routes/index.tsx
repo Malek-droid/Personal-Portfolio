@@ -763,7 +763,7 @@ function Index() {
                     aria-hidden="true"
                   />
                   <img
-                    src="/cat-final.png"
+                    src="/cat.svg"
                     alt="Illustration of my cat"
                     width={600}
                     height={660}

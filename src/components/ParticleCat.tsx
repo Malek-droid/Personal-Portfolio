@@ -39,8 +39,8 @@ export function ParticleCat() {
     >
       {(!mounted || !hasWebGL) && (
         <img
-          src="/cat-silhouette.svg"
-          alt="Cat silhouette"
+          src="/cat-photo.png"
+          alt="Cat portrait"
           className="w-full h-full object-contain opacity-60"
         />
       )}

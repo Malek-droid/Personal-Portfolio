@@ -1,79 +1,81 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
-// Timing constants (scaled with text length, capped between 1600ms and 2000ms)
-const MIN_DURATION_MS = 1600;
-const MAX_DURATION_MS = 2000;
-const PER_CHAR_STAGGER_MS = 55; // 45-70ms per character
-const FLICKER_INTERVAL_MS = 80; // 70-90ms per tick
+// ---------------------------------------------------------------------------
+// Named constants — no magic numbers
+// ---------------------------------------------------------------------------
 
-// Character variety pools with balanced ~25% weighting per tick
-const BINARY_POOL = "01";
-const HEX_POOL = "0123456789ABCDEF";
-const SYMBOL_POOL = "<>/{}[[]]#$%&*+=-_;:";
-const ALPHA_POOL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+/** Characters allowed inside the sweep window. Digits, A-F hex, symbols. No lowercase. */
+const CHARSET = "0123456789ABCDEF<>/{} []#$%&*+=-;:";
 
-function getRandomFlickerChar(): string {
-  const category = Math.floor(Math.random() * 4);
-  let pool: string;
-  switch (category) {
-    case 0:
-      pool = BINARY_POOL;
-      break;
-    case 1:
-      pool = HEX_POOL;
-      break;
-    case 2:
-      pool = SYMBOL_POOL;
-      break;
-    default:
-      pool = ALPHA_POOL;
-      break;
-  }
-  return pool[Math.floor(Math.random() * pool.length)];
+/** Number of characters scrambling simultaneously as the window sweeps. */
+const WINDOW_SIZE = 3;
+
+/** Milliseconds between each one-character advance of the window. */
+const WINDOW_ADVANCE_MS = 70;
+
+/** Milliseconds between glyph changes for characters inside the window. */
+const GLYPH_CHANGE_MS = 100;
+
+/** Milliseconds to fade a newly settled character from SCRAMBLE_OPACITY to 1. */
+const SETTLE_FADE_MS = 120;
+
+/** Opacity applied to characters currently inside the sweep window. */
+const SCRAMBLE_OPACITY = 0.55;
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function randomGlyph(): string {
+  return CHARSET[Math.floor(Math.random() * CHARSET.length)];
 }
+
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
 
 export interface BinaryTextProps {
   text: string;
   className?: string;
+  /** Unused — kept for call-site back-compat; has no effect on the new sweep animation. */
   durationMs?: number;
 }
 
 /**
- * BinaryText - displays plain text, and on hover/focus decodes each character
- * from a varied flicker pool (binary, hex, symbols, letters) into the real character,
- * staggered left-to-right. Words are grouped as unbreakable units to prevent mid-word wrapping.
+ * BinaryText
+ *
+ * Renders plain text with a left-to-right sweep decode animation on
+ * pointerenter / focus of the wrapper element.
+ *
+ * • Only a window of WINDOW_SIZE characters scrambles at a time.
+ * • Characters behind the window show the real, settled text.
+ * • Characters ahead of the window also show the real text (no pre-scramble).
+ * • The window advances one position every WINDOW_ADVANCE_MS ms.
+ * • Glyphs inside the window are randomised every GLYPH_CHANGE_MS ms.
+ * • Each slot has a fixed width so nothing shifts during animation.
+ * • New triggers are ignored while the animation is running.
+ * • prefers-reduced-motion: renders plain text, no animation.
+ * • Screen readers receive the real text via a visually-hidden element.
  */
 export function BinaryText({
   text,
   className = "",
-  durationMs,
 }: BinaryTextProps) {
-  const [displayChars, setDisplayChars] = useState<string[]>(() => text.split(""));
+  const wrapperRef = useRef<HTMLSpanElement>(null);
+
+  // Per-slot DOM span refs for direct style/textContent mutation (avoids React re-renders).
+  const slotRefs = useRef<HTMLSpanElement[]>([]);
   const isRunningRef = useRef(false);
-  const timerRef = useRef<number | null>(null);
-  const containerRef = useRef<HTMLSpanElement>(null);
+  const rafIdRef = useRef<number | null>(null);
 
-  const effectiveDuration =
-    durationMs ??
-    Math.min(
-      MAX_DURATION_MS,
-      Math.max(MIN_DURATION_MS, text.length * PER_CHAR_STAGGER_MS)
-    );
+  // Ensure slot refs array is sized correctly on every render.
+  const chars = text.split("");
 
-  useEffect(() => {
-    setDisplayChars(text.split(""));
-  }, [text]);
+  // -------------------------------------------------------------------------
+  // Core animation — runs outside React state, mutates DOM directly.
+  // -------------------------------------------------------------------------
 
-  const stopAnimation = useCallback(() => {
-    if (timerRef.current !== null) {
-      window.clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    isRunningRef.current = false;
-    setDisplayChars(text.split(""));
-  }, [text]);
-
-  const triggerDecode = useCallback(() => {
+  const runSweep = useCallback(() => {
     if (isRunningRef.current) return;
 
     if (
@@ -84,114 +86,123 @@ export function BinaryText({
     }
 
     isRunningRef.current = true;
-    const startTime = performance.now();
-    const length = text.length;
 
-    timerRef.current = window.setInterval(() => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / effectiveDuration, 1);
+    const slots = slotRefs.current;
+    const length = chars.length;
 
-      const nextChars: string[] = [];
-      let allSettled = true;
-
-      for (let i = 0; i < length; i++) {
-        const char = text[i];
-        if (char === " " || char === "\n") {
-          nextChars.push(char);
-          continue;
-        }
-
-        // Left-to-right progressive settling
-        const settleProgress = (i + 1) / length;
-        if (progress >= settleProgress) {
-          nextChars.push(char);
-        } else {
-          allSettled = false;
-          nextChars.push(getRandomFlickerChar());
-        }
-      }
-
-      setDisplayChars(nextChars);
-
-      if (allSettled || progress >= 1) {
-        stopAnimation();
-      }
-    }, FLICKER_INTERVAL_MS);
-  }, [text, effectiveDuration, stopAnimation]);
-
-  // Trigger when parent interactive element (button or link) is hovered or focused
-  useEffect(() => {
-    const parent = containerRef.current?.parentElement;
-    if (!parent) return;
-
-    if (parent.tagName === "A" || parent.tagName === "BUTTON") {
-      parent.addEventListener("pointerenter", triggerDecode);
-      parent.addEventListener("focus", triggerDecode);
-      return () => {
-        parent.removeEventListener("pointerenter", triggerDecode);
-        parent.removeEventListener("focus", triggerDecode);
-      };
+    // Reset all slots to real text + full opacity before starting.
+    for (let i = 0; i < length; i++) {
+      const slot = slots[i];
+      if (!slot) continue;
+      slot.textContent = chars[i];
+      slot.style.opacity = "1";
+      slot.style.transition = "";
     }
-  }, [triggerDecode]);
+
+    let windowStart = 0;
+    let lastAdvanceTime = performance.now();
+    let lastGlyphTime = performance.now();
+
+    function tick(now: number) {
+      // --- Advance window? ---
+      if (now - lastAdvanceTime >= WINDOW_ADVANCE_MS) {
+        // Settle the character leaving the back of the window.
+        const leavingIndex = windowStart - 1;
+        if (leavingIndex >= 0 && leavingIndex < length) {
+          const leavingSlot = slots[leavingIndex];
+          if (leavingSlot) {
+            leavingSlot.textContent = chars[leavingIndex];
+            leavingSlot.style.transition = `opacity ${SETTLE_FADE_MS}ms ease`;
+            leavingSlot.style.opacity = "1";
+          }
+        }
+        windowStart += 1;
+        lastAdvanceTime = now;
+      }
+
+      // --- Randomise glyphs inside the window? ---
+      if (now - lastGlyphTime >= GLYPH_CHANGE_MS) {
+        for (let i = windowStart; i < Math.min(windowStart + WINDOW_SIZE, length); i++) {
+          const slot = slots[i];
+          if (!slot) continue;
+          // Skip whitespace — keep it as-is.
+          if (chars[i] === " ") continue;
+          slot.textContent = randomGlyph();
+          slot.style.transition = "";
+          slot.style.opacity = String(SCRAMBLE_OPACITY);
+        }
+        lastGlyphTime = now;
+      }
+
+      // --- Done? ---
+      if (windowStart >= length) {
+        // Settle any remaining chars in the last window.
+        for (let i = Math.max(0, length - WINDOW_SIZE); i < length; i++) {
+          const slot = slots[i];
+          if (!slot) continue;
+          slot.textContent = chars[i];
+          slot.style.transition = `opacity ${SETTLE_FADE_MS}ms ease`;
+          slot.style.opacity = "1";
+        }
+        isRunningRef.current = false;
+        rafIdRef.current = null;
+        return;
+      }
+
+      rafIdRef.current = requestAnimationFrame(tick);
+    }
+
+    rafIdRef.current = requestAnimationFrame(tick);
+  }, [chars, text]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // -------------------------------------------------------------------------
+  // Cleanup on unmount
+  // -------------------------------------------------------------------------
 
   useEffect(() => {
     return () => {
-      if (timerRef.current !== null) {
-        window.clearInterval(timerRef.current);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
       }
     };
   }, []);
 
-  // Split into words while preserving character indices for unbreakable word wrapping
-  const words: { word: string; startIndex: number }[] = [];
-  let currentWord = "";
-  let currentStart = 0;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    if (char === " ") {
-      if (currentWord.length > 0) {
-        words.push({ word: currentWord, startIndex: currentStart });
-        currentWord = "";
-      }
-      words.push({ word: " ", startIndex: i });
-      currentStart = i + 1;
-    } else {
-      currentWord += char;
-    }
-  }
-  if (currentWord.length > 0) {
-    words.push({ word: currentWord, startIndex: currentStart });
-  }
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
 
   return (
     <span
-      ref={containerRef}
-      className={`inline-block select-none ${className}`}
-      onPointerEnter={triggerDecode}
-      onFocus={triggerDecode}
-      tabIndex={0}
-      aria-label={text}
+      ref={wrapperRef}
+      className={`inline-block ${className}`}
+      onPointerEnter={runSweep}
+      onFocus={runSweep}
     >
-      <span aria-hidden="true" className="inline">
-        {words.map(({ word, startIndex }) => {
-          if (word === " ") {
-            return <span key={startIndex}> </span>;
+      {/* Screen-reader text — hidden visually, readable by AT */}
+      <span className="sr-only">{text}</span>
+
+      {/* Visual slots — aria-hidden so AT uses the sr-only span above */}
+      <span aria-hidden="true" className="inline" style={{ pointerEvents: "none" }}>
+        {chars.map((char, i) => {
+          if (char === " ") {
+            return (
+              <span
+                key={i}
+                style={{ display: "inline-block", minWidth: "0.3ch" }}
+              >
+                {" "}
+              </span>
+            );
           }
           return (
-            <span key={startIndex} className="inline-block whitespace-nowrap">
-              {word.split("").map((targetChar, offset) => {
-                const charIndex = startIndex + offset;
-                const currentChar = displayChars[charIndex] ?? targetChar;
-                return (
-                  <span key={charIndex} className="inline-block relative">
-                    <span className="invisible select-none">{targetChar}</span>
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      {currentChar}
-                    </span>
-                  </span>
-                );
-              })}
+            <span
+              key={i}
+              style={{ display: "inline-block", minWidth: "1ch", textAlign: "center" }}
+              ref={(el) => {
+                if (el) slotRefs.current[i] = el;
+              }}
+            >
+              {char}
             </span>
           );
         })}

@@ -62,8 +62,8 @@ const Heading = ({ a, b }: { a: string; b: string }) => {
   const r2 = useReveal<HTMLSpanElement>();
   return (
     <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
-      <span ref={r1} className="reveal block text-white" style={{ transitionDelay: "100ms" }}><BinaryText text={a} /></span>
-      <span ref={r2} className="reveal block text-[#555]" style={{ transitionDelay: "200ms" }}><BinaryText text={b} /></span>
+      <span ref={r1} className="reveal block text-white" style={{ transitionDelay: "100ms" }}>{a}</span>
+      <span ref={r2} className="reveal block text-[#555]" style={{ transitionDelay: "200ms" }}>{b}</span>
     </h2>
   );
 };
@@ -681,8 +681,8 @@ function Index() {
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
             <h1 className="font-black text-5xl md:text-7xl leading-[1.02] tracking-tight">
-              <Reveal delay={100}><span className="block text-white"><BinaryText text="I build systems." /></span></Reveal>
-              <Reveal delay={200}><span className="block text-[#555]"><BinaryText text="That think for themselves." /></span></Reveal>
+              <Reveal delay={100}><span className="block text-white">I build systems.</span></Reveal>
+              <Reveal delay={200}><span className="block text-[#555]">That think for themselves.</span></Reveal>
             </h1>
             <Reveal delay={300}>
               <p className="text-[#999] text-base md:text-lg mt-8 max-w-lg leading-relaxed">

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MysticCat } from "@/components/MysticCat";
 import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
+import { BinaryText } from "@/components/BinaryText";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,7 +49,7 @@ const SectionTag = ({ children, delay = 0 }: { children: React.ReactNode; delay?
       style={{ transitionDelay: `${delay}ms` }}
     >
       <span className="inline-block w-2 h-2 bg-[#7c3aed]" />
-      {children}
+      {typeof children === "string" ? <BinaryText text={children} /> : children}
     </div>
   );
 };
@@ -666,10 +667,10 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="#" className="font-black text-white tracking-tight text-lg">MALEK BEN SALAH<span className="text-[#7c3aed]">.</span></a>
           <div className="hidden md:flex items-center gap-8 text-[13px] text-[#999]">
-            <a href="#about" className="nav-link hover:text-white">About</a>
-            <a href="#projects" className="nav-link hover:text-white">Projects</a>
-            <a href="#experience" className="nav-link hover:text-white">Experience</a>
-            <a href="#contact" className="nav-link hover:text-white">Contact</a>
+            <a href="#about" className="nav-link hover:text-white"><BinaryText text="About" /></a>
+            <a href="#projects" className="nav-link hover:text-white"><BinaryText text="Projects" /></a>
+            <a href="#experience" className="nav-link hover:text-white"><BinaryText text="Experience" /></a>
+            <a href="#contact" className="nav-link hover:text-white"><BinaryText text="Contact" /></a>
           </div>
           <FilledBtn href="#contact">Hire Me</FilledBtn>
         </div>

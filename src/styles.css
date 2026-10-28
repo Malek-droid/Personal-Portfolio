@@ -355,3 +355,24 @@
   .ncat-split, .ncat-slice { display: none; }
   .ncat-glyph { opacity: .18; }
 }
+
+/* Flashlight cursor – screen-blends a glow over the ambient code text */
+.spotlight-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  /* Above ambient-bg (z:0) but below section content (z:10) and nav (z:50) */
+  z-index: 1;
+  background: radial-gradient(
+    circle 260px at var(--spot-x, -9999px) var(--spot-y, -9999px),
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(124, 58, 237, 0.03) 45%,
+    transparent 100%
+  );
+  /* screen mode brightens ambient text inside the circle without altering content */
+  mix-blend-mode: screen;
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .spotlight-overlay { display: none; }
+}
+

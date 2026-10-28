@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MysticCat } from "@/components/MysticCat";
+import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -230,6 +231,13 @@ function CursorGlow() {
     return () => window.removeEventListener("mousemove", onMove);
   }, []);
   return <div ref={ref} className="cursor-glow" />;
+}
+
+/* Flashlight cursor overlay */
+function FlashlightSpotlight() {
+  const ref = useRef<HTMLDivElement>(null);
+  useCursorSpotlight(ref);
+  return <div ref={ref} className="spotlight-overlay" aria-hidden="true" />;
 }
 
 /* Reveal wrapper */
@@ -651,6 +659,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-black text-white">
       <CursorGlow />
+      <FlashlightSpotlight />
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#0d0d0d] border-b border-[#1a1a1a]">

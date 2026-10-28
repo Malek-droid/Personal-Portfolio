@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { MysticCat } from "@/components/MysticCat";
-import { ParticleCat } from "@/components/ParticleCat";
 import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 import { BinaryText } from "@/components/BinaryText";
 import { CommandTerminal } from "@/components/CommandTerminal";
@@ -755,7 +753,42 @@ function Index() {
             </div>
             <div className="md:basis-[45%] md:min-w-0 flex flex-col items-center gap-2">
               <Reveal delay={250}>
-                <ParticleCat />
+                <div
+                  className="cat-wrap relative flex items-center justify-center overflow-visible"
+                  style={{ width: "220px", height: "275px", maxWidth: "60vw" }}
+                >
+                  {/* Soft violet glow behind the cat (#7c3aed, low opacity) */}
+                  <div
+                    className="cat-glow absolute inset-4 -z-10 rounded-full bg-[#7c3aed] opacity-20 blur-2xl pointer-events-none"
+                    aria-hidden="true"
+                  />
+                  <img
+                    src="/cat-final.png"
+                    alt="Illustration of my cat"
+                    width={600}
+                    height={660}
+                    className="cat-float-quiet w-full h-full object-contain pointer-events-none select-none"
+                  />
+                  <style>{`
+                    @keyframes catQuietFloat {
+                      0%, 100% { transform: translateY(0px); }
+                      50% { transform: translateY(-8px); }
+                    }
+                    .cat-float-quiet {
+                      animation: catQuietFloat 6s ease-in-out infinite;
+                    }
+                    @media (prefers-reduced-motion: reduce) {
+                      .cat-float-quiet {
+                        animation: none !important;
+                        transform: none !important;
+                      }
+                      .cat-glow {
+                        opacity: 0 !important;
+                        display: none !important;
+                      }
+                    }
+                  `}</style>
+                </div>
               </Reveal>
               <Reveal delay={450} className="w-full">
                 <div className="bg-[#0a0a0a] border border-[#1e1e1e] p-8 font-mono text-[13px] space-y-5">

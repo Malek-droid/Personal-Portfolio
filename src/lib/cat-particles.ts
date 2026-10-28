@@ -10,8 +10,9 @@ const RETURN_SPRING = 0.08;
 const DAMPING = 0.82;
 const MAX_DPR = 2;
 
-const EYE_LEFT_COLOR = 0x9fd4ff; // Icy blue
-const EYE_RIGHT_COLOR = 0xffc46b; // Pale amber
+// Saturated readable glowing eye colors: left BLUE (#3b9eff), right YELLOW (#ffd23f)
+const EYE_LEFT_COLOR = 0x3b9eff;
+const EYE_RIGHT_COLOR = 0xffd23f;
 
 /**
  * Checks whether WebGL is supported in the current environment.
@@ -36,10 +37,13 @@ interface ParticleData {
   seeds: Float32Array;
   alphas: Float32Array;
   sizes: Float32Array;
+  edges: Float32Array;
 }
 
 /**
  * Samples filled pixels from the SVG silhouette using an offscreen canvas.
+ * Edge pixels receive 2x density and a brighter violet highlight so the cat's
+ * head, ears, and whiskers pop clearly at rest.
  */
 async function sampleSilhouettePoints(
   svgUrl: string,
@@ -64,19 +68,41 @@ async function sampleSilhouettePoints(
       const imgData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
       const data = imgData.data;
 
-      const filledPixels: [number, number][] = [];
+      const filledPixels: { x: number; y: number; isEdge: boolean }[] = [];
+
+      const isFilled = (x: number, y: number) => {
+        if (x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight) return false;
+        return data[(y * canvasWidth + x) * 4 + 3] > 64;
+      };
 
       for (let y = 0; y < canvasHeight; y += 2) {
         for (let x = 0; x < canvasWidth; x += 2) {
           const idx = (y * canvasWidth + x) * 4;
           const alpha = data[idx + 3];
           if (alpha > 64) {
-            // Dissolve effect: below the neck (y > 340), randomly thin out pixels
-            if (y > 340) {
-              const fadeRatio = (y - 340) / (canvasHeight - 340);
+            // Dissolve effect: below the short neck stub (y > 425) only
+            if (y > 425) {
+              const fadeRatio = (y - 425) / (canvasHeight - 425);
               if (Math.random() < fadeRatio * 0.75) continue;
             }
-            filledPixels.push([x, y]);
+
+            // Outline edge detection: check 2px cardinal neighbors
+            const onEdge =
+              !isFilled(x - 2, y) ||
+              !isFilled(x + 2, y) ||
+              !isFilled(x, y - 2) ||
+              !isFilled(x, y + 2);
+
+            filledPixels.push({ x, y, isEdge: onEdge });
+
+            // 2x particle density near the silhouette contour
+            if (onEdge) {
+              filledPixels.push({
+                x: x + (Math.random() - 0.5) * 1.5,
+                y: y + (Math.random() - 0.5) * 1.5,
+                isEdge: true,
+              });
+            }
           }
         }
       }
@@ -96,11 +122,13 @@ async function sampleSilhouettePoints(
       const seeds = new Float32Array(count * 4);
       const alphas = new Float32Array(count);
       const sizes = new Float32Array(count);
+      const edges = new Float32Array(count);
 
-      // Eye coordinate bounds in 400x500 space
-      // Left eye cutout center ~ (165, 225), right eye ~ (235, 225)
       for (let i = 0; i < count; i++) {
-        const [px, py] = filledPixels[i];
+        const item = filledPixels[i];
+        const px = item.x;
+        const py = item.y;
+        const isEdge = item.isEdge;
 
         // Map to world coordinates centered at (0, 0): [-1, 1] horizontally, [-1.25, 1.25] vertically
         const worldX = ((px / canvasWidth) - 0.5) * 2.0;
@@ -124,20 +152,20 @@ async function sampleSilhouettePoints(
         seeds[i * 4 + 2] = Math.random();
         seeds[i * 4 + 3] = Math.random();
 
-        // Below neck particles thin out and fade
-        const isBelowNeck = worldY < -0.3;
-        alphas[i] = isBelowNeck ? 0.45 : 0.85;
-        sizes[i] = (Math.random() * 2.0 + 2.5);
+        const isBelowNeck = worldY < -0.8;
+        alphas[i] = isBelowNeck ? 0.35 : isEdge ? 0.95 : 0.85;
+        sizes[i] = isEdge ? Math.random() * 1.5 + 2.8 : Math.random() * 2.0 + 2.3;
+        edges[i] = isEdge ? 1.0 : 0.0;
       }
 
-      // Normalized coordinates for the two eyes
-      const eyeLeftX = ((165 / canvasWidth) - 0.5) * 2.0;
-      const eyeLeftY = (0.5 - (225 / canvasHeight)) * 2.5;
-      const eyeRightX = ((235 / canvasWidth) - 0.5) * 2.0;
-      const eyeRightY = (0.5 - (225 / canvasHeight)) * 2.5;
+      // Exact centers of the two almond eye cutouts in 400x500 space
+      const eyeLeftX = ((150 / canvasWidth) - 0.5) * 2.0;
+      const eyeLeftY = (0.5 - (245 / canvasHeight)) * 2.5;
+      const eyeRightX = ((250 / canvasWidth) - 0.5) * 2.0;
+      const eyeRightY = (0.5 - (245 / canvasHeight)) * 2.5;
 
       resolve({
-        points: { positions, targets, velocities, seeds, alphas, sizes },
+        points: { positions, targets, velocities, seeds, alphas, sizes, edges },
         eyeLeft: [eyeLeftX, eyeLeftY],
         eyeRight: [eyeRightX, eyeRightY],
       });
@@ -213,11 +241,12 @@ export function initParticleCat(
   let eyeRightMesh: THREE.Points | null = null;
   let material: THREE.ShaderMaterial | null = null;
 
-  // Shader material for soft violet particles
+  // Shader material for soft violet particles with crisp edge highlighting
   const vertexShader = `
     attribute vec4 aSeed;
     attribute float aAlpha;
     attribute float aSize;
+    attribute float aEdge;
 
     uniform float uTime;
     uniform float uPixelRatio;
@@ -231,20 +260,26 @@ export function initParticleCat(
 
       if (uReducedMotion < 0.5) {
         // Subtle organic breathing drift
-        pos.x += sin(uTime * 0.9 + aSeed.x * 6.28) * 0.012;
-        pos.y += cos(uTime * 0.7 + aSeed.y * 6.28) * 0.012;
+        pos.x += sin(uTime * 0.9 + aSeed.x * 6.28) * 0.010;
+        pos.y += cos(uTime * 0.7 + aSeed.y * 6.28) * 0.010;
 
-        // Downward dissolving drift below neck
-        if (pos.y < -0.3) {
+        // Downward dissolving drift below short neck stub only (leaving face/ears intact)
+        if (pos.y < -0.75) {
           float drift = mod(uTime * 0.05 + aSeed.z * 1.5, 0.25);
           pos.y -= drift;
         }
       }
 
-      // Mostly #7c3aed (0.486, 0.227, 0.929) with slight lighter violet variation
+      // Base violet #7c3aed (0.486, 0.227, 0.929) with brighter violet along the silhouette edge
       vec3 baseViolet = vec3(0.486, 0.227, 0.929);
       vec3 lightViolet = vec3(0.68, 0.45, 1.0);
-      vColor = mix(baseViolet, lightViolet, aSeed.w * 0.35);
+      vec3 edgeViolet = vec3(0.62, 0.38, 1.0);
+
+      if (aEdge > 0.5) {
+        vColor = mix(edgeViolet, lightViolet, aSeed.w * 0.45);
+      } else {
+        vColor = mix(baseViolet, lightViolet, aSeed.w * 0.30);
+      }
 
       vAlpha = aAlpha;
 
@@ -268,10 +303,10 @@ export function initParticleCat(
     }
   `;
 
-  // Eye glowing sprite creation
+  // Glowing eye point creation (saturated colors with soft pulse)
   const createEyePoint = (x: number, y: number, colorHex: number) => {
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array([x, y, 0.02]), 3));
+    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array([x, y, 0.03]), 3));
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uColor: { value: new THREE.Color(colorHex) },
@@ -284,7 +319,7 @@ export function initParticleCat(
         void main() {
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           float pulse = 0.85 + 0.15 * sin(uTime * 1.8);
-          gl_PointSize = 10.0 * uPixelRatio * pulse;
+          gl_PointSize = 12.0 * uPixelRatio * pulse;
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
@@ -294,7 +329,7 @@ export function initParticleCat(
           float dist = length(gl_PointCoord - vec2(0.5));
           if (dist > 0.5) discard;
           float glow = smoothstep(0.5, 0.0, dist);
-          gl_FragColor = vec4(uColor, glow * 0.95);
+          gl_FragColor = vec4(uColor, glow * 1.0);
         }
       `,
       transparent: true,
@@ -314,6 +349,7 @@ export function initParticleCat(
       geometry.setAttribute("aSeed", new THREE.BufferAttribute(points.seeds, 4));
       geometry.setAttribute("aAlpha", new THREE.BufferAttribute(points.alphas, 1));
       geometry.setAttribute("aSize", new THREE.BufferAttribute(points.sizes, 1));
+      geometry.setAttribute("aEdge", new THREE.BufferAttribute(points.edges, 1));
 
       material = new THREE.ShaderMaterial({
         vertexShader,
@@ -331,7 +367,7 @@ export function initParticleCat(
       pointsMesh = new THREE.Points(geometry, material);
       scene.add(pointsMesh);
 
-      // Two glowing eyes
+      // Two bright saturated eyes (left BLUE #3b9eff, right YELLOW #ffd23f)
       eyeLeftMesh = createEyePoint(eyeLeft[0], eyeLeft[1], EYE_LEFT_COLOR);
       eyeRightMesh = createEyePoint(eyeRight[0], eyeRight[1], EYE_RIGHT_COLOR);
       scene.add(eyeLeftMesh);

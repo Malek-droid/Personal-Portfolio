@@ -62,61 +62,25 @@ const Heading = ({ a, b }: { a: string; b: string }) => {
   const r2 = useReveal<HTMLSpanElement>();
   return (
     <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
-      <span ref={r1} className="reveal block text-white" style={{ transitionDelay: "100ms" }}>{a}</span>
-      <span ref={r2} className="reveal block text-[#555]" style={{ transitionDelay: "200ms" }}>{b}</span>
+      <span ref={r1} className="reveal block text-white" style={{ transitionDelay: "100ms" }}><BinaryText text={a} /></span>
+      <span ref={r2} className="reveal block text-[#555]" style={{ transitionDelay: "200ms" }}><BinaryText text={b} /></span>
     </h2>
   );
 };
 
-const SCRAMBLE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#^@!*$%&";
 function FilledBtn({ children, href = "#" }: { children: string; href?: string }) {
-  const [display, setDisplay] = useState(children);
-  const [scrambling, setScrambling] = useState(false);
-  const intervalRef = useRef<number | null>(null);
-
-  const onEnter = () => {
-    const target = children;
-    const len = Math.max(target.length, 6);
-    let frame = 0;
-    const totalFrames = 16; // ~400ms at 25ms
-    setScrambling(true);
-    if (intervalRef.current) window.clearInterval(intervalRef.current);
-    intervalRef.current = window.setInterval(() => {
-      frame++;
-      const revealCount = Math.floor((frame / totalFrames) * target.length);
-      let out = "";
-      for (let i = 0; i < target.length; i++) {
-        if (i < revealCount) out += target[i];
-        else out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-      }
-      // pad if short
-      while (out.length < len && frame < totalFrames / 2) {
-        out += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-      }
-      setDisplay(out);
-      if (frame >= totalFrames) {
-        setDisplay(target);
-        setScrambling(false);
-        if (intervalRef.current) window.clearInterval(intervalRef.current);
-      }
-    }, 25);
-  };
-  const onLeave = () => {
-    if (intervalRef.current) window.clearInterval(intervalRef.current);
-    setScrambling(false);
-    setDisplay(children);
-  };
-
   return (
-    <a href={href} className="btn-filled" onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <span className={`btn-label ${scrambling ? "scrambling" : ""}`}>{display}</span>
+    <a href={href} className="btn-filled">
+      <span className="btn-label"><BinaryText text={children} /></span>
       <span className="btn-arrow">↗</span>
     </a>
   );
 }
 
 const GhostBtn = ({ children, href = "#" }: { children: React.ReactNode; href?: string }) => (
-  <a href={href} className="btn-ghost">{children}</a>
+  <a href={href} className="btn-ghost">
+    {typeof children === "string" ? <BinaryText text={children} /> : children}
+  </a>
 );
 
 const Terminal = ({
@@ -283,7 +247,7 @@ const WindowPanel = ({ label, tag, children, className = "" }: { label: string; 
           <span className="win-dot bg-[#ffbd2e]" />
           <span className="win-dot bg-[#27c93f]" />
         </div>
-        <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#666]">{label}</span>
+        <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#666]"><BinaryText text={label} /></span>
       </div>
       {tag && <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#555]">{tag}</div>}
     </div>
@@ -356,7 +320,7 @@ function BenchBar({ label, value, violet = false, suffix = "%" }: { label: strin
   }, [value]);
   return (
     <div className="grid grid-cols-[140px_1fr_50px] items-center gap-4 py-2">
-      <span className="font-mono text-[12px] text-[#999]">{label}</span>
+      <span className="font-mono text-[12px] text-[#999]"><BinaryText text={label} /></span>
       <div className={`bench-bar ${violet ? "violet" : ""}`}><span ref={ref} style={{ width: 0 }} /></div>
       <span className={`font-mono text-[12px] text-right ${violet ? "text-[#7c3aed]" : "text-[#666]"}`}>{value}{suffix}</span>
     </div>
@@ -422,7 +386,7 @@ function ModuleSelector() {
         {(["modules","stack"] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-5 py-3 text-[11px] font-mono uppercase tracking-[0.2em] transition-colors ${tab===t ? "text-white border-b-2 border-[#7c3aed]" : "text-[#555] hover:text-white"}`}>
-            {t === "modules" ? "Modules" : "Tech Stack"}
+            {t === "modules" ? <BinaryText text="Modules" /> : <BinaryText text="Tech Stack" />}
           </button>
         ))}
       </div>
@@ -431,8 +395,8 @@ function ModuleSelector() {
           <div key={r.n} className="flex items-center gap-4 px-5 py-3 hover:bg-[#0d0d0d] transition-colors">
             <span className="text-[#7c3aed] text-base w-5 text-center">{r.i}</span>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-[13px] font-medium truncate">{r.n}</div>
-              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider">{r.s}</div>
+              <div className="text-white text-[13px] font-medium truncate"><BinaryText text={r.n} /></div>
+              <div className="font-mono text-[10px] text-[#555] uppercase tracking-wider"><BinaryText text={r.s} /></div>
             </div>
             <div className="toggle" />
           </div>
@@ -491,9 +455,9 @@ const UnderTheHood = () => (
           return (
             <Reveal key={p.f} delay={200 + i * 100}>
               <div className="bg-[#0a0a0a] border border-[#1e1e1e] h-full flex flex-col">
-                <div className="px-3 py-2 border-b border-[#1e1e1e] font-mono text-[10px] text-[#666] truncate">{p.f}</div>
+                <div className="px-3 py-2 border-b border-[#1e1e1e] font-mono text-[10px] text-[#666] truncate"><BinaryText text={p.f} /></div>
                 <div className="p-4 flex-1">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-[#7c3aed] mb-3 font-mono">▪ {p.n}</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-[#7c3aed] mb-3 font-mono"><BinaryText text={`▪ ${p.n}`} /></div>
                   <pre className="font-mono text-[11px] text-[#999] leading-relaxed whitespace-pre-wrap">{p.c.join("\n")}</pre>
                 </div>
                 <div className="px-4 pb-4">
@@ -577,10 +541,10 @@ const ConsensusCard = ({ role, company, lines, outcome }: { role: string; compan
     <div className="flex items-center gap-4 px-5 py-4 border-b border-[#1e1e1e]">
       <div className="w-10 h-10 rounded-full bg-[#7c3aed] flex items-center justify-center text-white font-black text-sm">MB</div>
       <div>
-        <div className="text-white text-sm font-bold">Malek Ben Salah</div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]">{role} · {company}</div>
+        <div className="text-white text-sm font-bold"><BinaryText text="Malek Ben Salah" /></div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText text={`${role} · ${company}`} /></div>
       </div>
-      <div className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]">build-log</div>
+      <div className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText text="build-log" /></div>
     </div>
     <div className="p-5 space-y-2 font-mono text-[12px]">
       {lines.map((m) => (
@@ -593,8 +557,8 @@ const ConsensusCard = ({ role, company, lines, outcome }: { role: string; compan
     <div className="m-5 mt-2 border border-[#1e3a1e] bg-[#0a1a0a] p-4 flex items-start gap-3">
       <span className="text-[#27c93f] text-lg leading-none">✓</span>
       <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#27c93f]">Outcome</div>
-        <div className="text-white text-sm mt-1">{outcome}</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#27c93f]"><BinaryText text="Outcome" /></div>
+        <div className="text-white text-sm mt-1"><BinaryText text={outcome} /></div>
       </div>
     </div>
   </div>
@@ -698,7 +662,7 @@ function Index() {
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#0d0d0d] border-b border-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#" className="font-black text-white tracking-tight text-lg">MALEK BEN SALAH<span className="text-[#7c3aed]">.</span></a>
+          <a href="#" className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></a>
           <div className="hidden md:flex items-center gap-8 text-[13px] text-[#999]">
             <a href="#about" className="nav-link hover:text-white"><BinaryText text="About" /></a>
             <a href="#projects" className="nav-link hover:text-white"><BinaryText text="Projects" /></a>
@@ -717,8 +681,8 @@ function Index() {
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
             <h1 className="font-black text-5xl md:text-7xl leading-[1.02] tracking-tight">
-              <Reveal delay={100}><span className="block text-white">I build systems.</span></Reveal>
-              <Reveal delay={200}><span className="block text-[#555]">That think for themselves.</span></Reveal>
+              <Reveal delay={100}><span className="block text-white"><BinaryText text="I build systems." /></span></Reveal>
+              <Reveal delay={200}><span className="block text-[#555]"><BinaryText text="That think for themselves." /></span></Reveal>
             </h1>
             <Reveal delay={300}>
               <p className="text-[#999] text-base md:text-lg mt-8 max-w-lg leading-relaxed">
@@ -802,8 +766,8 @@ function Index() {
                     ["CURRENTLY", "Software Engineering Intern @ DotJcoM"],
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between border-b border-[#1e1e1e] pb-4 last:border-0 last:pb-0">
-                      <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]">{k} →</span>
-                      <span className="text-white">{v}</span>
+                      <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]"><BinaryText text={`${k} →`} /></span>
+                      <span className="text-white"><BinaryText text={v} /></span>
                     </div>
                   ))}
                 </div>
@@ -858,7 +822,7 @@ function Index() {
             ].map((stat, i) => (
               <div key={stat.l} className={`py-16 px-6 text-center ${i !== 0 ? "md:border-l border-[#1e1e1e]" : ""} ${i % 2 === 1 ? "border-l md:border-l border-[#1e1e1e]" : ""} ${i >= 2 ? "border-t md:border-t-0 border-[#1e1e1e]" : ""}`}>
                 <StatNumber value={stat.n} suffix={stat.s} />
-                <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mt-3">{stat.l}</div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mt-3"><BinaryText text={stat.l} /></div>
               </div>
             ))}
           </div>
@@ -888,15 +852,15 @@ function Index() {
                 <div className="feature-card p-7 flex flex-col h-full relative">
                   <div className="fc-icon-bg" />
                   <div className="relative">
-                    <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-6">▪ {p.tag}</div>
-                    <h3 className="fc-title text-2xl font-bold text-white">{p.title}</h3>
+                    <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-6"><BinaryText text={`▪ ${p.tag}`} /></div>
+                    <h3 className="fc-title text-2xl font-bold text-white"><BinaryText text={p.title} /></h3>
                     <p className="text-[#999] text-sm mt-3 leading-relaxed">{p.desc}</p>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {p.stack.map((s) => (
-                        <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1">{s}</span>
+                        <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1"><BinaryText text={s} /></span>
                       ))}
                     </div>
-                    <a href="#" className="block mt-8 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold">View Project ↗</a>
+                    <a href="#" className="block mt-8 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"><BinaryText text="View Project" /> ↗</a>
                   </div>
                 </div>
               </Reveal>
@@ -920,7 +884,7 @@ function Index() {
             <div className="flex md:flex-col border border-[#1e1e1e] bg-[#0a0a0a] overflow-x-auto md:overflow-visible">
               {groups.map((g) => (
                 <div key={g.label} className="md:contents">
-                  <div className="exp-group-label hidden md:flex">{g.label}</div>
+                  <div className="exp-group-label hidden md:flex"><BinaryText text={g.label} /></div>
                   {g.idx.map((i) => {
                     const e = experiences[i];
                     return (
@@ -929,7 +893,7 @@ function Index() {
                         onClick={() => setActive(i)}
                         className={`text-left px-5 py-4 text-[13px] font-bold uppercase tracking-wider border-b border-[#1e1e1e] last:border-0 transition-colors whitespace-nowrap ${active === i ? "bg-[#0d0d0d] text-white border-l-2 border-l-[#7c3aed]" : "text-[#666] hover:text-white"}`}
                       >
-                        {e.company}
+                        <BinaryText text={e.company} />
                       </button>
                     );
                   })}
@@ -939,10 +903,10 @@ function Index() {
             <div>
               <div className="border border-[#1e1e1e] bg-[#0a0a0a] p-8">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
-                  <h3 className="text-2xl font-bold text-white">{exp.role}</h3>
-                  <span className="font-mono text-[12px] text-[#555] uppercase">{exp.period}</span>
+                  <h3 className="text-2xl font-bold text-white"><BinaryText text={exp.role} /></h3>
+                  <span className="font-mono text-[12px] text-[#555] uppercase"><BinaryText text={exp.period} /></span>
                 </div>
-                <div className="text-[#7c3aed] font-mono text-sm mb-6">@ {exp.company}</div>
+                <div className="text-[#7c3aed] font-mono text-sm mb-6"><BinaryText text={`@ ${exp.company}`} /></div>
                 <ul className="space-y-3">
                   {exp.bullets.map((b) => (
                     <li key={b} className="flex gap-3 text-[#999] leading-relaxed">
@@ -953,7 +917,7 @@ function Index() {
                 </ul>
                 <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-[#1e1e1e]">
                   {exp.stack.map((s) => (
-                    <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1">{s}</span>
+                    <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1"><BinaryText text={s} /></span>
                   ))}
                 </div>
               </div>
@@ -980,8 +944,8 @@ function Index() {
                   <div className="relative">
                     <p className="fc-title text-white leading-relaxed">"{t.q}"</p>
                     <div className="mt-8 pt-6 border-t border-[#1e1e1e]">
-                      <div className="text-white font-bold text-sm">{t.n}</div>
-                      <div className="text-[#666] text-[12px] mt-1">{t.r}</div>
+                      <div className="text-white font-bold text-sm"><BinaryText text={t.n} /></div>
+                      <div className="text-[#666] text-[12px] mt-1"><BinaryText text={t.r} /></div>
                     </div>
                   </div>
                 </div>
@@ -1026,8 +990,8 @@ function Index() {
                   ["LOCATION", "Monastir, Tunisia"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 last:border-0 last:pb-0">
-                    <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]">{k} →</span>
-                    <span className="text-white">{v}</span>
+                    <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]"><BinaryText text={`${k} →`} /></span>
+                    <span className="text-white"><BinaryText text={v} /></span>
                   </div>
                 ))}
               </div>
@@ -1041,7 +1005,7 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-10">
             <div>
-              <div className="font-black text-white tracking-tight text-lg">MALEK BEN SALAH<span className="text-[#7c3aed]">.</span></div>
+              <div className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></div>
               <p className="text-[#666] text-sm mt-4 max-w-xs">Built with precision. No copy-paste.</p>
             </div>
             {[
@@ -1050,16 +1014,16 @@ function Index() {
               { h: "Legal", l: ["Privacy", "Imprint", "Colophon"] },
             ].map((c) => (
               <div key={c.h}>
-                <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mb-5">▪ {c.h}</div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mb-5"><BinaryText text={`▪ ${c.h}`} /></div>
                 <ul className="space-y-3">
-                  {c.l.map((i) => <li key={i}><a href="#" className="nav-link text-[#999] hover:text-white text-sm">{i}</a></li>)}
+                  {c.l.map((i) => <li key={i}><a href="#" className="nav-link text-[#999] hover:text-white text-sm"><BinaryText text={i} /></a></li>)}
                 </ul>
               </div>
             ))}
           </div>
           <div className="flex flex-wrap justify-between items-center gap-4 mt-16 pt-8 border-t border-[#1e1e1e] text-[12px] text-[#555] font-mono uppercase tracking-wider">
-            <div>© 2026 Malek Ben Salah</div>
-            <div>Built with precision. No copy-paste.</div>
+            <div><BinaryText text="© 2026 Malek Ben Salah" /></div>
+            <div><BinaryText text="Built with precision. No copy-paste." /></div>
           </div>
         </div>
       </footer>

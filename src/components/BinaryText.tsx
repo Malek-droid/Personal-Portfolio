@@ -1,7 +1,36 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-const DEFAULT_DURATION_MS = 600;
-const FLICKER_INTERVAL_MS = 35;
+// Timing constants (scaled with text length, capped between 1600ms and 2000ms)
+const MIN_DURATION_MS = 1600;
+const MAX_DURATION_MS = 2000;
+const PER_CHAR_STAGGER_MS = 55; // 45-70ms per character
+const FLICKER_INTERVAL_MS = 80; // 70-90ms per tick
+
+// Character variety pools with balanced ~25% weighting per tick
+const BINARY_POOL = "01";
+const HEX_POOL = "0123456789ABCDEF";
+const SYMBOL_POOL = "<>/{}[[]]#$%&*+=-_;:";
+const ALPHA_POOL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+function getRandomFlickerChar(): string {
+  const category = Math.floor(Math.random() * 4);
+  let pool: string;
+  switch (category) {
+    case 0:
+      pool = BINARY_POOL;
+      break;
+    case 1:
+      pool = HEX_POOL;
+      break;
+    case 2:
+      pool = SYMBOL_POOL;
+      break;
+    default:
+      pool = ALPHA_POOL;
+      break;
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 export interface BinaryTextProps {
   text: string;
@@ -11,21 +40,26 @@ export interface BinaryTextProps {
 
 /**
  * BinaryText - displays plain text, and on hover/focus decodes each character
- * from flickering binary (0/1) into the real character, staggered left-to-right.
- * Uses invisible placeholder characters to guarantee zero layout shift.
- * Respects prefers-reduced-motion and provides an accessible aria-label.
+ * from a varied flicker pool (binary, hex, symbols, letters) into the real character,
+ * staggered left-to-right. Words are grouped as unbreakable units to prevent mid-word wrapping.
  */
 export function BinaryText({
   text,
   className = "",
-  durationMs = DEFAULT_DURATION_MS,
+  durationMs,
 }: BinaryTextProps) {
   const [displayChars, setDisplayChars] = useState<string[]>(() => text.split(""));
   const isRunningRef = useRef(false);
   const timerRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLSpanElement>(null);
 
-  // Sync if text prop changes
+  const effectiveDuration =
+    durationMs ??
+    Math.min(
+      MAX_DURATION_MS,
+      Math.max(MIN_DURATION_MS, text.length * PER_CHAR_STAGGER_MS)
+    );
+
   useEffect(() => {
     setDisplayChars(text.split(""));
   }, [text]);
@@ -55,25 +89,25 @@ export function BinaryText({
 
     timerRef.current = window.setInterval(() => {
       const elapsed = performance.now() - startTime;
-      const progress = Math.min(elapsed / durationMs, 1);
+      const progress = Math.min(elapsed / effectiveDuration, 1);
 
       const nextChars: string[] = [];
       let allSettled = true;
 
       for (let i = 0; i < length; i++) {
         const char = text[i];
-        if (char === " ") {
-          nextChars.push(" ");
+        if (char === " " || char === "\n") {
+          nextChars.push(char);
           continue;
         }
 
-        // Left-to-right stagger: index i settles when progress reaches (i + 1) / length
+        // Left-to-right progressive settling
         const settleProgress = (i + 1) / length;
         if (progress >= settleProgress) {
           nextChars.push(char);
         } else {
           allSettled = false;
-          nextChars.push(Math.random() < 0.5 ? "0" : "1");
+          nextChars.push(getRandomFlickerChar());
         }
       }
 
@@ -83,9 +117,9 @@ export function BinaryText({
         stopAnimation();
       }
     }, FLICKER_INTERVAL_MS);
-  }, [text, durationMs, stopAnimation]);
+  }, [text, effectiveDuration, stopAnimation]);
 
-  // Hook up parent triggers (e.g. if rendered inside an <a> link)
+  // Trigger when parent interactive element (button or link) is hovered or focused
   useEffect(() => {
     const parent = containerRef.current?.parentElement;
     if (!parent) return;
@@ -108,6 +142,28 @@ export function BinaryText({
     };
   }, []);
 
+  // Split into words while preserving character indices for unbreakable word wrapping
+  const words: { word: string; startIndex: number }[] = [];
+  let currentWord = "";
+  let currentStart = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === " ") {
+      if (currentWord.length > 0) {
+        words.push({ word: currentWord, startIndex: currentStart });
+        currentWord = "";
+      }
+      words.push({ word: " ", startIndex: i });
+      currentStart = i + 1;
+    } else {
+      currentWord += char;
+    }
+  }
+  if (currentWord.length > 0) {
+    words.push({ word: currentWord, startIndex: currentStart });
+  }
+
   return (
     <span
       ref={containerRef}
@@ -115,20 +171,31 @@ export function BinaryText({
       onPointerEnter={triggerDecode}
       onFocus={triggerDecode}
       tabIndex={0}
-      role="text"
       aria-label={text}
     >
-      {text.split("").map((targetChar, index) => {
-        const currentChar = displayChars[index] ?? targetChar;
-        return (
-          <span key={index} className="inline-block relative" aria-hidden="true">
-            <span className="invisible select-none">{targetChar}</span>
-            <span className="absolute inset-0 flex items-center justify-center">
-              {currentChar}
+      <span aria-hidden="true" className="inline">
+        {words.map(({ word, startIndex }) => {
+          if (word === " ") {
+            return <span key={startIndex}> </span>;
+          }
+          return (
+            <span key={startIndex} className="inline-block whitespace-nowrap">
+              {word.split("").map((targetChar, offset) => {
+                const charIndex = startIndex + offset;
+                const currentChar = displayChars[charIndex] ?? targetChar;
+                return (
+                  <span key={charIndex} className="inline-block relative">
+                    <span className="invisible select-none">{targetChar}</span>
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      {currentChar}
+                    </span>
+                  </span>
+                );
+              })}
             </span>
-          </span>
-        );
-      })}
+          );
+        })}
+      </span>
     </span>
   );
 }

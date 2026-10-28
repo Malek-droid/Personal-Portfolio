@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MysticCat } from "@/components/MysticCat";
+import { ParticleCat } from "@/components/ParticleCat";
 import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 import { BinaryText } from "@/components/BinaryText";
 
@@ -748,7 +749,7 @@ function Index() {
             </div>
             <div className="md:basis-[45%] md:min-w-0 flex flex-col items-center gap-2">
               <Reveal delay={250}>
-                <MysticCat />
+                <ParticleCat />
               </Reveal>
               <Reveal delay={450} className="w-full">
                 <div className="bg-[#0a0a0a] border border-[#1e1e1e] p-8 font-mono text-[13px] space-y-5">

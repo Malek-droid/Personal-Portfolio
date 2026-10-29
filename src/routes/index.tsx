@@ -7,6 +7,7 @@ import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
 import { LiveClock as FooterClock } from "@/components/LiveClock";
 import { GitHubCalendar } from "@/components/GitHubCalendar";
 import { MagneticButton } from "@/components/ui/magnetic-button";
+import { GlitchReveal } from "@/components/GlitchReveal";
 import {
   useScroll,
   useTransform,
@@ -65,12 +66,10 @@ const SectionTag = ({ children, delay = 0 }: { children: React.ReactNode; delay?
 };
 
 const Heading = ({ a, b }: { a: string; b: string }) => {
-  const r1 = useReveal<HTMLSpanElement>();
-  const r2 = useReveal<HTMLSpanElement>();
   return (
     <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
-      <span ref={r1} className="reveal block text-white" style={{ transitionDelay: "100ms" }}>{a}</span>
-      <span ref={r2} className="reveal block text-[#555]" style={{ transitionDelay: "200ms" }}>{b}</span>
+      <span className="block text-white"><GlitchReveal text={a} delayMs={100} /></span>
+      <span className="block text-[#555]"><GlitchReveal text={b} delayMs={200} /></span>
     </h2>
   );
 };
@@ -1258,7 +1257,7 @@ function Index() {
                   <div className="fc-icon-bg" />
                   <div className="relative">
                     <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-6"><BinaryText text={`▪ ${p.tag}`} /></div>
-                    <h3 className="fc-title text-2xl font-bold text-white"><BinaryText text={p.title} /></h3>
+                    <h3 className="fc-title text-2xl font-bold text-white"><GlitchReveal text={p.title} /></h3>
                     <p className="text-[#999] text-sm mt-3 leading-relaxed">{p.desc}</p>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {p.stack.map((s) => (

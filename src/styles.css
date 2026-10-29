@@ -389,3 +389,79 @@ html[data-booting] body { visibility: hidden; }
   .spotlight-overlay { display: none; }
 }
 
+/* Glitch text reveal */
+.glitch-reveal-root {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.glitch-reveal-root.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.glitch-reveal-root.is-revealed {
+  opacity: 1;
+  visibility: visible;
+}
+
+.glitch-char {
+  position: relative;
+  display: inline-block;
+  white-space: pre;
+}
+
+.glitch-char-real {
+  display: inline-block;
+}
+
+.glitch-reveal-root:not(.is-settled) .glitch-char-real {
+  opacity: 0;
+}
+
+.glitch-reveal-root.is-settled .glitch-char-real {
+  opacity: 1;
+}
+
+.glitch-char::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.glitch-reveal-root.is-revealed:not(.is-settled) .glitch-char::after {
+  opacity: 1;
+  animation: glitchCharSteps var(--duration, 120ms) steps(1) var(--count, 3) var(--stagger-delay, 0ms) forwards;
+}
+
+.glitch-reveal-root.is-settled .glitch-char::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+@keyframes glitchCharSteps {
+  0%   { content: var(--char-0); }
+  10%  { content: var(--char-1); }
+  20%  { content: var(--char-2); }
+  30%  { content: var(--char-3); }
+  40%  { content: var(--char-4); }
+  50%  { content: var(--char-5); }
+  60%  { content: var(--char-6); }
+  70%  { content: var(--char-7); }
+  80%  { content: var(--char-8); }
+  90%  { content: var(--char-9); }
+  100% { content: var(--char-final); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-reveal-root.is-hidden { opacity: 1; visibility: visible; }
+  .glitch-reveal-root:not(.is-settled) .glitch-char-real { opacity: 1; }
+  .glitch-char::after { display: none !important; animation: none !important; }
+}
+

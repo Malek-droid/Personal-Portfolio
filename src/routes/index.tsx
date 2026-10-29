@@ -17,15 +17,15 @@ import {
 } from "motion/react";
 
 export const PROJECT_LINKS = {
-  hrcom: "",
-  chrofa: "",
-  driftMonitor: "",
-  thinkboard: "",
-  internshive: "",
-  jobquest: "",
+  hrcom: "#",       // original was href="#" — restored
+  chrofa: "",       // new project, no URL yet
+  driftMonitor: "", // new project, no URL yet
+  thinkboard: "#",  // original was href="#" — restored
+  internshive: "#", // original was href="#" — restored
+  jobquest: "#",    // original was href="#" — restored
 };
 
-export const CV_FILE_PATH = "/cv.pdf";
+export const CV_FILE_PATH = "#"; // original was href="#" — restored
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -1340,8 +1340,8 @@ function Index() {
                     {p.link ? (
                       <a
                         href={p.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target={p.link.startsWith("http") ? "_blank" : undefined}
+                        rel={p.link.startsWith("http") ? "noopener noreferrer" : undefined}
                         className="block mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"
                       >
                         <BinaryText text={p.link.includes("github.com") ? "View on GitHub" : "View Project"} /> ↗

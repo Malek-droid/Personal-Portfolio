@@ -9,6 +9,7 @@ import { GitHubCalendar } from "@/components/GitHubCalendar";
 import { GitHubActivityTable } from "@/components/GitHubActivityTable";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { GlitchReveal } from "@/components/GlitchReveal";
+import { HeroAnimatedVerb } from "@/components/HeroAnimatedVerb";
 import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
 import {
   useScroll,
@@ -1109,9 +1110,23 @@ function Index() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-16 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
-            <h1 className="font-black text-5xl md:text-7xl leading-[0.97] tracking-[-0.03em] font-display">
-              <Reveal delay={100}><span className="block text-white">I build systems.</span></Reveal>
-              <Reveal delay={200}><span className="block text-[#555]">That think for themselves.</span></Reveal>
+            <h1
+              className="font-black text-4xl sm:text-5xl md:text-7xl leading-[0.97] tracking-[-0.03em] font-display"
+              aria-label="I build systems. That think for themselves."
+            >
+              <Reveal delay={100}>
+                <span className="block text-white" aria-hidden="true">
+                  I build systems.
+                </span>
+              </Reveal>
+              <Reveal delay={200}>
+                <span className="block text-[#555]" aria-hidden="true">
+                  <span className="inline-block whitespace-nowrap">
+                    That <HeroAnimatedVerb /> for
+                  </span>{" "}
+                  <span className="block">themselves.</span>
+                </span>
+              </Reveal>
             </h1>
             <Reveal delay={300}>
               <p className="text-[#999] text-base md:text-lg mt-8 max-w-lg leading-relaxed">

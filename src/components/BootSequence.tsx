@@ -36,6 +36,13 @@ function removeBootingAttr() {
   document.documentElement.removeAttribute("data-booting");
 }
 
+function notifyBootComplete() {
+  if (typeof window !== "undefined") {
+    (window as any).__portfolioBooted = true;
+    window.dispatchEvent(new CustomEvent("portfolio:boot-complete"));
+  }
+}
+
 /* ── Component ── */
 export function BootSequence() {
   const [shouldRender, setShouldRender] = useState(false);
@@ -48,12 +55,14 @@ export function BootSequence() {
     // Respect prefers-reduced-motion
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       removeBootingAttr();
+      notifyBootComplete();
       return;
     }
     // Already seen this session
     try {
       if (sessionStorage.getItem(BOOT_SESSION_KEY)) {
         removeBootingAttr();
+        notifyBootComplete();
         return;
       }
     } catch { /* noop */ }
@@ -73,6 +82,7 @@ export function BootSequence() {
     timerRef.current = setTimeout(() => {
       setShouldRender(false);
       unlockScroll();
+      notifyBootComplete();
     }, FADE_DURATION_MS);
   }, []);
 

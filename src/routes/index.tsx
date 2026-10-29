@@ -10,6 +10,7 @@ import { GitHubActivityTable } from "@/components/GitHubActivityTable";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { GlitchReveal } from "@/components/GlitchReveal";
 import { HeroAnimatedVerb } from "@/components/HeroAnimatedVerb";
+import { ScrollConvergeText } from "@/components/ScrollConvergeText";
 import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
 import {
   useScroll,
@@ -1326,7 +1327,13 @@ function Index() {
         <AmbientBg text={PROJ_AMBIENT} />
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <SectionTag num="05">Projects</SectionTag>
-          <Heading a="Things I've built." b="That actually ship." />
+          <ScrollConvergeText
+            lines={[
+              { text: "Things I've built.", className: "text-white" },
+              { text: "That actually ship.", className: "text-[#555]" },
+            ]}
+            isLighter
+          />
           <div className="grid md:grid-cols-2 gap-4 mt-16">
             {[
               {
@@ -1516,10 +1523,12 @@ function Index() {
       <section id="contact" className="purple-band border-y border-[#7c3aed]/50 py-24 md:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <SectionTag num="10" darkPill>Contact</SectionTag>
-          <h2 className="font-black text-4xl md:text-6xl leading-[1.0] tracking-[-0.03em] font-display">
-            <span className="block text-white"><GlitchReveal text="Let's build something." delayMs={100} /></span>
-            <span className="block text-purple-200/90"><GlitchReveal text="That matters." delayMs={200} /></span>
-          </h2>
+          <ScrollConvergeText
+            lines={[
+              { text: "Let's build something.", className: "text-white" },
+              { text: "That matters.", className: "text-purple-200/90" },
+            ]}
+          />
           <div className="grid md:grid-cols-2 gap-12 mt-16 items-start">
             <div>
               <p className="text-purple-100/90 text-lg leading-relaxed max-w-md">

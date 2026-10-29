@@ -41,7 +41,7 @@ function CalendarInner() {
       throwOnError={false}
       style={{
         color: "#555",
-        fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+        fontFamily: '"Space Mono", ui-monospace, monospace',
         maxWidth: "100%",
       }}
     />

@@ -129,7 +129,7 @@ export function BootSequence() {
           maxWidth: "560px",
           backgroundColor: "#000",
           border: "1px solid rgba(124,58,237,0.3)",
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontFamily: '"Space Mono", ui-monospace, monospace',
         }}
       >
         {/* Title bar — no macOS dots */}
@@ -181,7 +181,7 @@ export function BootSequence() {
       <p
         style={{
           marginTop: "20px",
-          fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+          fontFamily: '"Space Mono", ui-monospace, monospace',
           fontSize: "11px",
           color: "#333",
           letterSpacing: "0.05em",

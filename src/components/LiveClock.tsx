@@ -34,7 +34,7 @@ export function LiveClock() {
     <span
       suppressHydrationWarning
       style={{
-        fontFamily: '"JetBrains Mono", ui-monospace, monospace',
+        fontFamily: '"Space Mono", ui-monospace, monospace',
         fontVariantNumeric: "tabular-nums",
         fontSize: "11px",
         color: "#7c3aed",

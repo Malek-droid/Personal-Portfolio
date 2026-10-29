@@ -8,8 +8,9 @@ html[data-booting] body { visibility: hidden; }
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Host Grotesk", system-ui, sans-serif;
+  --font-display: "Host Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -60,13 +61,20 @@ html[data-booting] body { visibility: hidden; }
   html, body {
     background: #000;
     color: #fff;
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: var(--font-display);
     -webkit-font-smoothing: antialiased;
+  }
+  /* Display headings: tight tracking and leading for large sizes */
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+    line-height: 1.0;
   }
 }
 
 @layer utilities {
-  .font-mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .font-mono { font-family: var(--font-mono); }
+  .font-display { font-family: var(--font-display); }
   .hero-glow {
     background: radial-gradient(ellipse at center, rgba(124, 58, 237, 0.18), transparent 60%);
   }
@@ -90,7 +98,7 @@ html[data-booting] body { visibility: hidden; }
     transition: transform 250ms ease;
   }
   .btn-filled:hover .btn-arrow { transform: translate(3px, -3px); }
-  .btn-filled .btn-label.scrambling { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .btn-filled .btn-label.scrambling { font-family: var(--font-mono); }
 
   /* Ghost CTA crosshatch */
   .btn-ghost {
@@ -166,7 +174,7 @@ html[data-booting] body { visibility: hidden; }
     opacity: var(--ambient-code-opacity, 0.055);
     pointer-events: none; z-index: 0;
     overflow: hidden;
-    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 11px; line-height: 1.6;
     color: var(--ambient-code-color, #a78bfa);
     white-space: pre;
@@ -247,7 +255,7 @@ html[data-booting] body { visibility: hidden; }
   @keyframes travelDot { 0% { left: 0%; } 100% { left: calc(100% - 6px); } }
 
   /* Experience group label */
-  .exp-group-label { padding: 14px 20px 8px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.25em; color: #555; text-transform: uppercase; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; gap: 8px; }
+  .exp-group-label { padding: 14px 20px 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.25em; color: #555; text-transform: uppercase; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; gap: 8px; }
 
   /* ── 3. Purple Band (full-bleed contrast flood with fine grid texture) ── */
   .purple-band {
@@ -357,7 +365,7 @@ html[data-booting] body { visibility: hidden; }
 @keyframes catPixel { 0%,100% { opacity: 1; transform: translateY(0); } 50% { opacity: .35; transform: translateY(4px); } }
 .cat-bit { opacity: 0; animation: catBit 3s steps(1) infinite; animation-delay: inherit; }
 @keyframes catBit { 0%,70% { opacity: 0; } 71%,85% { opacity: 1; } 86%,100% { opacity: 0; } }
-.cat-glyph { position: absolute; pointer-events: none; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; opacity: 0; animation: catGlyph 5s ease-in-out infinite; }
+.cat-glyph { position: absolute; pointer-events: none; font-family: var(--font-mono); font-size: 11px; opacity: 0; animation: catGlyph 5s ease-in-out infinite; }
 @keyframes catGlyph { 0%,100% { opacity: 0; transform: translateY(4px); } 50% { opacity: .5; transform: translateY(-6px); } }
 .cat-cursor { position: absolute; right: 6%; bottom: 18%; width: 7px; height: 12px; background: #8b5cf6; animation: catBlink 1s steps(1) infinite; }
 @keyframes catBlink { 50% { opacity: 0; } }
@@ -404,7 +412,7 @@ html[data-booting] body { visibility: hidden; }
 @keyframes ncatPupil { 0%,90%,100% { transform: scaleX(1); } 93% { transform: scaleX(.5); } }
 .ncat-particle { animation: ncatParticle 4s ease-in-out infinite; }
 @keyframes ncatParticle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); filter: brightness(.5); } }
-.ncat-glyph { position: absolute; pointer-events: none; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; color: #7c3aed; opacity: 0; animation: ncatGlyph 8s ease-in-out infinite; }
+.ncat-glyph { position: absolute; pointer-events: none; font-family: var(--font-mono); font-size: 10px; color: #7c3aed; opacity: 0; animation: ncatGlyph 8s ease-in-out infinite; }
 @keyframes ncatGlyph { 0%,100% { opacity: 0; } 50% { opacity: .22; } }
 @media (prefers-reduced-motion: reduce) {
   .ncat-float, .ncat-eye, .ncat-pupil, .ncat-particle, .ncat-glyph { animation: none !important; }
@@ -535,3 +543,19 @@ html[data-booting] body { visibility: hidden; }
   }
 }
 
+
+/* ── Typography: Display headings get tight tracking & leading ── */
+/* These classes are used on the hero h1, section h2, and project/role h3 */
+.display-heading {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  line-height: 0.97;
+}
+/* Stat numbers: Space Mono digits are fixed-width, clip on very small viewports */
+.stat-number-wrap {
+  font-family: var(--font-mono);
+  font-size: clamp(2.5rem, 8vw, 3.75rem); /* fluid: never overflows */
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}

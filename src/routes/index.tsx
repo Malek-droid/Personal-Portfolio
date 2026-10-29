@@ -110,7 +110,7 @@ const CrosshairCorners = () => (
 
 const Heading = ({ a, b }: { a: string; b: string }) => {
   return (
-    <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
+    <h2 className="font-black text-4xl md:text-6xl leading-[1.0] tracking-[-0.03em] font-display">
       <span className="block text-white"><GlitchReveal text={a} delayMs={100} /></span>
       <span className="block text-[#555]"><GlitchReveal text={b} delayMs={200} /></span>
     </h2>
@@ -255,7 +255,7 @@ function StatNumber({ value, suffix = "" }: { value: number; suffix?: string }) 
     io.observe(el);
     return () => io.disconnect();
   }, [value]);
-  return <div ref={ref} className="font-black text-5xl md:text-6xl text-white">{n}{done ? suffix : ""}</div>;
+  return <div ref={ref} className="stat-number-wrap text-white">{n}{done ? suffix : ""}</div>;
 }
 
 /* Cursor glow */
@@ -1109,7 +1109,7 @@ function Index() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-16 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
-            <h1 className="font-black text-5xl md:text-7xl leading-[1.02] tracking-tight">
+            <h1 className="font-black text-5xl md:text-7xl leading-[0.97] tracking-[-0.03em] font-display">
               <Reveal delay={100}><span className="block text-white">I build systems.</span></Reveal>
               <Reveal delay={200}><span className="block text-[#555]">That think for themselves.</span></Reveal>
             </h1>
@@ -1369,7 +1369,7 @@ function Index() {
                   <div className="relative flex flex-col h-full">
                     <ProjectThumbnail title={p.title} tag={p.tag} type={p.id} />
                     <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-4"><BinaryText text={`▪ ${p.tag}`} /></div>
-                    <h3 className="fc-title text-2xl font-bold text-white mb-2"><GlitchReveal text={p.title} /></h3>
+                    <h3 className="fc-title text-2xl font-bold text-white mb-2 font-display tracking-[-0.02em]"><GlitchReveal text={p.title} /></h3>
                     <p className="text-[#999] text-sm leading-relaxed flex-1">{p.desc}</p>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {p.stack.map((s) => (
@@ -1429,7 +1429,7 @@ function Index() {
               <div className="relative border border-[#1e1e1e] bg-[#0a0a0a] hover:border-dashed-purple transition-colors p-8">
                 <CrosshairCorners />
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
-                  <h3 className="text-2xl font-bold text-white"><BinaryText key={exp.role} text={exp.role} /></h3>
+                  <h3 className="text-2xl font-bold text-white font-display tracking-[-0.02em]"><BinaryText key={exp.role} text={exp.role} /></h3>
                   <span className="font-mono text-[12px] text-[#555] uppercase"><BinaryText key={exp.period} text={exp.period} /></span>
                 </div>
                 <div className="text-[#7c3aed] font-mono text-sm mb-6"><BinaryText key={exp.company} text={`@ ${exp.company}`} /></div>
@@ -1501,7 +1501,7 @@ function Index() {
       <section id="contact" className="purple-band border-y border-[#7c3aed]/50 py-24 md:py-32 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <SectionTag num="10" darkPill>Contact</SectionTag>
-          <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
+          <h2 className="font-black text-4xl md:text-6xl leading-[1.0] tracking-[-0.03em] font-display">
             <span className="block text-white"><GlitchReveal text="Let's build something." delayMs={100} /></span>
             <span className="block text-purple-200/90"><GlitchReveal text="That matters." delayMs={200} /></span>
           </h2>

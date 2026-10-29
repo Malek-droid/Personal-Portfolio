@@ -4,6 +4,8 @@ import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 import { BinaryText } from "@/components/BinaryText";
 import { CommandTerminal } from "@/components/CommandTerminal";
 import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
+import { LiveClock as FooterClock } from "@/components/LiveClock";
+import { GitHubCalendar } from "@/components/GitHubCalendar";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -988,6 +990,18 @@ function Index() {
         </div>
       </section>
 
+      {/* GITHUB ACTIVITY */}
+      <section className="border-b border-[#1a1a1a] py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
+            <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#555] mb-6">
+              // github activity
+            </div>
+            <GitHubCalendar />
+          </Reveal>
+        </div>
+      </section>
+
       {/* CONTACT */}
       <section id="contact" className="border-b border-[#1a1a1a] py-32">
         <div className="max-w-7xl mx-auto px-6">
@@ -1056,6 +1070,14 @@ function Index() {
           </div>
           <div className="flex flex-wrap justify-between items-center gap-4 mt-16 pt-8 border-t border-[#1e1e1e] text-[12px] text-[#555] font-mono uppercase tracking-wider">
             <div><BinaryText text="© 2026 Malek Ben Salah" /></div>
+            {/* Status row: availability dot + status + local time */}
+            <div className="flex items-center gap-3">
+              <span className="status-dot" aria-hidden="true" />
+              <span>available for internship</span>
+              <span className="text-[#1e1e1e]">·</span>
+              <FooterClock />
+              <span className="text-[#555]">TN</span>
+            </div>
             <div><BinaryText text="Built with precision. No copy-paste." /></div>
           </div>
         </div>

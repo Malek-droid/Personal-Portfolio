@@ -6,6 +6,7 @@ import { CommandTerminal } from "@/components/CommandTerminal";
 import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
 import { LiveClock as FooterClock } from "@/components/LiveClock";
 import { GitHubCalendar } from "@/components/GitHubCalendar";
+import { MagneticButton } from "@/components/ui/magnetic-button";
 import {
   useScroll,
   useTransform,
@@ -1036,7 +1037,9 @@ function Index() {
             <a href="#experience" className="nav-link hover:text-white"><BinaryText text="Experience" /></a>
             <a href="#contact" className="nav-link hover:text-white"><BinaryText text="Contact" /></a>
           </div>
-          <FilledBtn href="#contact">Hire Me</FilledBtn>
+          <MagneticButton>
+            <FilledBtn href="#contact">Hire Me</FilledBtn>
+          </MagneticButton>
         </div>
       </nav>
 

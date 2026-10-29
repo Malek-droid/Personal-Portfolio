@@ -1,11 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useCursorSpotlight } from "@/hooks/useCursorSpotlight";
 import { BinaryText } from "@/components/BinaryText";
 import { CommandTerminal } from "@/components/CommandTerminal";
 import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
 import { LiveClock as FooterClock } from "@/components/LiveClock";
 import { GitHubCalendar } from "@/components/GitHubCalendar";
+import {
+  useScroll,
+  useTransform,
+  motion,
+  type MotionValue,
+} from "motion/react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -255,57 +261,418 @@ const WindowPanel = ({ label, tag, children, className = "" }: { label: string; 
   </div>
 );
 
-/* ---------- 1. Request-Path diagram ---------- */
-const CatMark = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#7c3aed" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-2">
+/* ---------- 1. Request-Path diagram (scroll-driven) ---------- */
+
+/* ── Named constants ── */
+const DIAGRAM_SECTION_HEIGHT = "300vh";
+
+const THRESHOLD_NODE_0 = 0.08;
+const THRESHOLD_LINE_1_START = 0.12;
+const THRESHOLD_LINE_1_END = 0.42;
+const THRESHOLD_NODE_1 = 0.42;
+const THRESHOLD_LINE_2_START = 0.48;
+const THRESHOLD_LINE_2_END = 0.78;
+const THRESHOLD_NODE_2 = 0.78;
+
+const STACK_BADGES = ["React", "Node", "Mongo", "Groq", "JWT", "+N"] as const;
+
+const CatMark = ({ strokeColor = "#7c3aed" }: { strokeColor?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="22"
+    height="22"
+    fill="none"
+    stroke={strokeColor}
+    strokeWidth="1.4"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="mx-auto mb-2 transition-colors duration-300"
+  >
     <path d="M5 8 L7 3 L10 7" />
     <path d="M19 8 L17 3 L14 7" />
     <path d="M6 13 C6 9.5 8.5 7.5 12 7.5 C15.5 7.5 18 9.5 18 13 C18 16.5 15.5 19 12 19 C8.5 19 6 16.5 6 13 Z" />
-    <circle cx="9.8" cy="12.2" r="0.6" fill="#7c3aed" stroke="none" />
-    <circle cx="14.2" cy="12.2" r="0.6" fill="#7c3aed" stroke="none" />
+    <circle cx="9.8" cy="12.2" r="0.6" fill={strokeColor} stroke="none" />
+    <circle cx="14.2" cy="12.2" r="0.6" fill={strokeColor} stroke="none" />
     <path d="M11.4 14.2 L12 15 L12.6 14.2" />
     <path d="M7.5 13 L5 12.5 M7.5 13.8 L5 14.4" />
     <path d="M16.5 13 L19 12.5 M16.5 13.8 L19 14.4" />
   </svg>
 );
 
-const RequestPath = () => (
-  <WindowPanel label="REQUEST-PATH" tag={<span className="text-[#7c3aed]">🔒 end-to-end</span>}>
-    <div className="p-8 md:p-10">
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(60px,2fr)_minmax(0,1.1fr)_minmax(60px,2fr)_minmax(0,1fr)] items-center gap-4">
-        <div className="border border-[#1e1e1e] bg-[#0d0d0d] p-5 text-center">
-          <div className="text-[#7c3aed] text-xl mb-2">◆</div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#666]">Your Idea</div>
-          <div className="text-white text-sm font-bold mt-1">Concept</div>
-        </div>
-        <div className="hidden md:flex flex-col items-center gap-2 px-2 w-full">
-          <span className="text-[9px] font-mono text-[#7c3aed] tracking-[0.15em]">⚡ SHIPPED</span>
-          <div className="dash-line" />
-        </div>
-        <div className="border border-[#7c3aed] bg-[#0d0d0d] p-5 text-center relative" style={{ boxShadow: "0 0 24px rgba(124,58,237,0.15)" }}>
-          <CatMark />
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7c3aed]">MALEK</div>
-          <div className="text-white text-sm font-bold mt-1">Full-stack build</div>
-        </div>
-        <div className="hidden md:flex flex-col items-center gap-2 px-2 w-full">
-          <span className="text-[9px] font-mono text-[#7c3aed] tracking-[0.15em]">⚡ SHIPPED</span>
-          <div className="dash-line" />
-        </div>
-        <div className="border border-[#1e1e1e] bg-[#0d0d0d] p-5 text-center">
-          <div className="grid grid-cols-3 gap-1.5 mb-2">
-            {["React","Node","Mongo","Groq","JWT","+N"].map(s => (
-              <span key={s} className="text-[9px] font-mono text-[#999] border border-[#1e1e1e] py-1">{s}</span>
-            ))}
-          </div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#666]">Every Stack</div>
-        </div>
-      </div>
-      <div className="text-center mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-[#555]">
-        IDEA · CODE · PRODUCTION — SHIPPED END TO END
+function HorizontalConnector({
+  progress,
+  isLit,
+}: {
+  progress: MotionValue<number>;
+  isLit: boolean;
+}) {
+  const rawId = useId();
+  const maskId = `mask-h-${rawId.replace(/[^a-zA-Z0-9]/g, "")}`;
+
+  return (
+    <div className="hidden md:flex flex-col items-center justify-center gap-2 px-2 w-full">
+      <span
+        className="text-[9px] font-mono tracking-[0.15em] transition-colors duration-300"
+        style={{ color: isLit ? "#7c3aed" : "#444" }}
+      >
+        ⚡ SHIPPED
+      </span>
+      <div className="w-full h-4 relative flex items-center">
+        <svg
+          className="w-full h-4 overflow-visible"
+          preserveAspectRatio="none"
+          viewBox="0 0 100 16"
+        >
+          <defs>
+            <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="16">
+              <motion.line
+                x1="0"
+                y1="8"
+                x2="100"
+                y2="8"
+                stroke="white"
+                strokeWidth="12"
+                strokeLinecap="butt"
+                style={{ pathLength: progress }}
+              />
+            </mask>
+          </defs>
+          {/* Dim background dots */}
+          <line
+            x1="0"
+            y1="8"
+            x2="100"
+            y2="8"
+            stroke="#262626"
+            strokeWidth="2"
+            strokeDasharray="4 6"
+          />
+          {/* Lit violet dots revealed by scroll mask */}
+          <line
+            x1="0"
+            y1="8"
+            x2="100"
+            y2="8"
+            stroke="#7c3aed"
+            strokeWidth="2"
+            strokeDasharray="4 6"
+            mask={`url(#${maskId})`}
+          />
+        </svg>
       </div>
     </div>
-  </WindowPanel>
-);
+  );
+}
+
+function VerticalConnector({
+  progress,
+  isLit,
+}: {
+  progress: MotionValue<number>;
+  isLit: boolean;
+}) {
+  const rawId = useId();
+  const maskId = `mask-v-${rawId.replace(/[^a-zA-Z0-9]/g, "")}`;
+
+  return (
+    <div className="flex md:hidden flex-col items-center justify-center gap-1 my-1">
+      <span
+        className="text-[9px] font-mono tracking-[0.15em] transition-colors duration-300"
+        style={{ color: isLit ? "#7c3aed" : "#444" }}
+      >
+        ⚡ SHIPPED
+      </span>
+      <div className="w-6 h-10 relative flex justify-center">
+        <svg className="w-6 h-10 overflow-visible" viewBox="0 0 24 40">
+          <defs>
+            <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="40">
+              <motion.line
+                x1="12"
+                y1="0"
+                x2="12"
+                y2="40"
+                stroke="white"
+                strokeWidth="12"
+                strokeLinecap="butt"
+                style={{ pathLength: progress }}
+              />
+            </mask>
+          </defs>
+          {/* Dim background dots */}
+          <line
+            x1="12"
+            y1="0"
+            x2="12"
+            y2="40"
+            stroke="#262626"
+            strokeWidth="2"
+            strokeDasharray="4 6"
+          />
+          {/* Lit violet dots revealed by scroll mask */}
+          <line
+            x1="12"
+            y1="0"
+            x2="12"
+            y2="40"
+            stroke="#7c3aed"
+            strokeWidth="2"
+            strokeDasharray="4 6"
+            mask={`url(#${maskId})`}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+const RequestPath = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [activeStep, setActiveStep] = useState<number>(-1);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  const line1Progress = useTransform(
+    scrollYProgress,
+    [THRESHOLD_LINE_1_START, THRESHOLD_LINE_1_END],
+    [0, 1],
+    { clamp: true }
+  );
+
+  const line2Progress = useTransform(
+    scrollYProgress,
+    [THRESHOLD_LINE_2_START, THRESHOLD_LINE_2_END],
+    [0, 1],
+    { clamp: true }
+  );
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    return scrollYProgress.on("change", (v) => {
+      let nextStep = -1;
+      if (v >= THRESHOLD_NODE_2) {
+        nextStep = 2;
+      } else if (v >= THRESHOLD_NODE_1) {
+        nextStep = 1;
+      } else if (v >= THRESHOLD_NODE_0) {
+        nextStep = 0;
+      }
+      setActiveStep((prev) => (prev !== nextStep ? nextStep : prev));
+    });
+  }, [scrollYProgress, prefersReducedMotion]);
+
+  const isLit0 = prefersReducedMotion || activeStep >= 0;
+  const isLit1 = prefersReducedMotion || activeStep >= 1;
+  const isLit2 = prefersReducedMotion || activeStep >= 2;
+
+  const diagramContent = (
+    <WindowPanel
+      label="REQUEST-PATH"
+      tag={
+        <span className={`transition-colors duration-300 ${isLit2 ? "text-[#7c3aed]" : "text-[#555]"}`}>
+          🔒 end-to-end
+        </span>
+      }
+    >
+      <div className="p-6 md:p-10">
+        <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_minmax(60px,2fr)_minmax(0,1.1fr)_minmax(60px,2fr)_minmax(0,1fr)] items-center gap-2 md:gap-4">
+          {/* Node 0: Concept */}
+          <div
+            className={`w-full max-w-xs md:max-w-none border p-5 text-center transition-all duration-500 ${
+              isLit0
+                ? "border-[#7c3aed] bg-[#0d0d0d] shadow-[0_0_24px_rgba(124,58,237,0.2)]"
+                : "border-[#1e1e1e] bg-[#0a0a0a]"
+            }`}
+          >
+            <div
+              className={`text-xl mb-2 transition-colors duration-300 ${
+                isLit0 ? "text-[#7c3aed]" : "text-[#444]"
+              }`}
+            >
+              ◆
+            </div>
+            <div
+              className={`font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-300 ${
+                isLit0 ? "text-[#888]" : "text-[#444]"
+              }`}
+            >
+              Your Idea
+            </div>
+            <div
+              className={`text-sm font-bold mt-1 transition-colors duration-300 ${
+                isLit0 ? "text-white" : "text-[#666]"
+              }`}
+            >
+              Concept
+            </div>
+          </div>
+
+          {/* Line 1 (Horizontal for md+, Vertical for <md) */}
+          {prefersReducedMotion ? (
+            <>
+              <div className="hidden md:flex flex-col items-center justify-center gap-2 px-2 w-full">
+                <span className="text-[9px] font-mono tracking-[0.15em] text-[#7c3aed]">
+                  ⚡ SHIPPED
+                </span>
+                <div className="w-full h-4 relative flex items-center">
+                  <svg className="w-full h-4 overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 16">
+                    <line x1="0" y1="8" x2="100" y2="8" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex md:hidden flex-col items-center justify-center gap-1 my-1">
+                <span className="text-[9px] font-mono tracking-[0.15em] text-[#7c3aed]">
+                  ⚡ SHIPPED
+                </span>
+                <div className="w-6 h-10 relative flex justify-center">
+                  <svg className="w-6 h-10 overflow-visible" viewBox="0 0 24 40">
+                    <line x1="12" y1="0" x2="12" y2="40" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 6" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <HorizontalConnector progress={line1Progress} isLit={isLit1} />
+              <VerticalConnector progress={line1Progress} isLit={isLit1} />
+            </>
+          )}
+
+          {/* Node 1: Full-stack build */}
+          <div
+            className={`w-full max-w-xs md:max-w-none border p-5 text-center relative transition-all duration-500 ${
+              isLit1
+                ? "border-[#7c3aed] bg-[#0d0d0d] shadow-[0_0_28px_rgba(124,58,237,0.25)]"
+                : "border-[#1e1e1e] bg-[#0a0a0a]"
+            }`}
+          >
+            <CatMark strokeColor={isLit1 ? "#7c3aed" : "#444"} />
+            <div
+              className={`font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-300 ${
+                isLit1 ? "text-[#7c3aed]" : "text-[#444]"
+              }`}
+            >
+              MALEK
+            </div>
+            <div
+              className={`text-sm font-bold mt-1 transition-colors duration-300 ${
+                isLit1 ? "text-white" : "text-[#666]"
+              }`}
+            >
+              Full-stack build
+            </div>
+          </div>
+
+          {/* Line 2 (Horizontal for md+, Vertical for <md) */}
+          {prefersReducedMotion ? (
+            <>
+              <div className="hidden md:flex flex-col items-center justify-center gap-2 px-2 w-full">
+                <span className="text-[9px] font-mono tracking-[0.15em] text-[#7c3aed]">
+                  ⚡ SHIPPED
+                </span>
+                <div className="w-full h-4 relative flex items-center">
+                  <svg className="w-full h-4 overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 16">
+                    <line x1="0" y1="8" x2="100" y2="8" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex md:hidden flex-col items-center justify-center gap-1 my-1">
+                <span className="text-[9px] font-mono tracking-[0.15em] text-[#7c3aed]">
+                  ⚡ SHIPPED
+                </span>
+                <div className="w-6 h-10 relative flex justify-center">
+                  <svg className="w-6 h-10 overflow-visible" viewBox="0 0 24 40">
+                    <line x1="12" y1="0" x2="12" y2="40" stroke="#7c3aed" strokeWidth="2" strokeDasharray="4 6" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <HorizontalConnector progress={line2Progress} isLit={isLit2} />
+              <VerticalConnector progress={line2Progress} isLit={isLit2} />
+            </>
+          )}
+
+          {/* Node 2: Stack */}
+          <div
+            className={`w-full max-w-xs md:max-w-none border p-5 text-center transition-all duration-500 ${
+              isLit2
+                ? "border-[#7c3aed] bg-[#0d0d0d] shadow-[0_0_24px_rgba(124,58,237,0.2)]"
+                : "border-[#1e1e1e] bg-[#0a0a0a]"
+            }`}
+          >
+            <div className="grid grid-cols-3 gap-1.5 mb-2">
+              {STACK_BADGES.map((s) => (
+                <span
+                  key={s}
+                  className={`text-[9px] font-mono border py-1 transition-colors duration-300 ${
+                    isLit2
+                      ? "text-[#ccc] border-[#33224d] bg-[#120a1f]"
+                      : "text-[#555] border-[#1a1a1a] bg-transparent"
+                  }`}
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+            <div
+              className={`font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-300 ${
+                isLit2 ? "text-[#7c3aed]" : "text-[#444]"
+              }`}
+            >
+              Every Stack
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`text-center mt-8 font-mono text-[11px] uppercase tracking-[0.3em] transition-colors duration-300 ${
+            isLit2 ? "text-[#888]" : "text-[#444]"
+          }`}
+        >
+          IDEA · CODE · PRODUCTION — SHIPPED END TO END
+        </div>
+      </div>
+    </WindowPanel>
+  );
+
+  /* prefers-reduced-motion: no pinning, no scroll animation. Show the final, fully lit diagram in normal flow. */
+  if (prefersReducedMotion) {
+    return (
+      <section className="border-b border-[#1a1a1a] bg-black py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-6">
+          {diagramContent}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative border-b border-[#1a1a1a] bg-black"
+      style={{ height: DIAGRAM_SECTION_HEIGHT }}
+    >
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center p-4 md:p-6 overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto">
+          {diagramContent}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 /* ---------- 2. Benchmark chart ---------- */
 function BenchBar({ label, value, violet = false, suffix = "%" }: { label: string; value: number; violet?: boolean; suffix?: string }) {
@@ -719,10 +1086,10 @@ function Index() {
             ]}
           />
         </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pb-24 md:pb-32">
-          <Reveal delay={500}><RequestPath /></Reveal>
-        </div>
       </section>
+
+      {/* REQUEST-PATH (scroll-driven diagram) */}
+      <RequestPath />
 
       {/* TECH STRIP */}
       <section className="border-b border-[#1a1a1a] py-16">

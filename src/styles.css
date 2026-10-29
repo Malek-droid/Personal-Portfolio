@@ -2,6 +2,9 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Boot sequence flash prevention: hide body until the overlay is ready. */
+html[data-booting] body { visibility: hidden; }
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -207,6 +210,16 @@
     0% { box-shadow: 0 0 0 0 rgba(39,201,63,0.55); }
     70% { box-shadow: 0 0 0 8px rgba(39,201,63,0); }
     100% { box-shadow: 0 0 0 0 rgba(39,201,63,0); }
+  }
+
+  /* Pulsing availability dot (violet) — footer status row */
+  .status-dot { width: 7px; height: 7px; border-radius: 9999px; background: #7c3aed; flex: none; animation: statusPulse 2s ease-in-out infinite; }
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot { animation: none; }
   }
 
   /* Toggle (always on, violet) */

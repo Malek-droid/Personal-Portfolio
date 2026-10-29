@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { BootSequence } from "@/components/BootSequence";
 
 function NotFoundComponent() {
   return (
@@ -97,10 +98,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/* Inline script runs before paint to hide body until BootSequence mounts.
+   This prevents hero flash on first visit. Named constant kept in sync with BootSequence. */
+const BOOT_INLINE_SCRIPT = `(function(){try{if(!sessionStorage.getItem('malek_booted')){document.documentElement.setAttribute('data-booting','');}}catch(e){}})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Flash prevention: hide body until boot overlay is ready */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT_INLINE_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -116,6 +123,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <BootSequence />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>

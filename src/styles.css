@@ -465,3 +465,30 @@ html[data-booting] body { visibility: hidden; }
   .glitch-char::after { display: none !important; animation: none !important; }
 }
 
+/* Project thumbnail RGB split burst */
+.project-thumbnail {
+  position: relative;
+  background: #090909;
+  border: 1px solid #1a1a1a;
+  border-radius: 2px;
+  transform-origin: center center;
+  transition: transform 120ms ease, border-color 200ms ease;
+  will-change: transform, filter;
+}
+
+.feature-card:hover .project-thumbnail {
+  border-color: rgba(124, 58, 237, 0.4);
+}
+
+.project-thumbnail[data-glitching="true"] {
+  filter: url(#rgb-split-filter);
+  transform: scale(1.02);
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .project-thumbnail[data-glitching="true"] {
+    filter: none !important;
+    transform: none !important;
+  }
+}
+

@@ -8,6 +8,7 @@ import { LiveClock as FooterClock } from "@/components/LiveClock";
 import { GitHubCalendar } from "@/components/GitHubCalendar";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { GlitchReveal } from "@/components/GlitchReveal";
+import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
 import {
   useScroll,
   useTransform,
@@ -1022,6 +1023,7 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <RgbSplitFilter />
       <CursorGlow />
       <FlashlightSpotlight />
       <CommandTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
@@ -1245,26 +1247,27 @@ function Index() {
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <SectionTag>Projects</SectionTag>
           <Heading a="Things I've built." b="That actually ship." />
-          <div className="grid md:grid-cols-3 gap-4 mt-16">
+          <div className="grid md:grid-cols-2 gap-4 mt-16">
             {[
-              { tag: "FULL-STACK · AI", title: "HRcoM", desc: "Enterprise HR & internship management platform with an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings), facial recognition attendance, real-time notifications via Socket.io, and 50+ documented REST endpoints.", stack: ["React", "TypeScript", "Node.js", "MongoDB", "Groq", "Socket.io"] },
-              { tag: "FULL-STACK", title: "ThinkBoard", desc: "A MERN-stack note-taking app with full CRUD functionality, rate limiting via Upstash, Tailwind + DaisyUI interface, deployed on Render with uptime monitoring.", stack: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"] },
-              { tag: "FULL-STACK", title: "InternsHive", desc: "A full-stack internship platform built with a colleague — user authentication, CRUD operations, and a responsive UI for a seamless internship search experience.", stack: ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "SQLite"] },
-              { tag: "FRONT-END", title: "JobQuest", desc: "A LinkedIn-style professional networking platform with responsive layouts and interactive features, designed and built independently from concept to deployment.", stack: ["HTML", "CSS", "JavaScript"] },
+              { id: "hrcom" as const, tag: "FULL-STACK · AI", title: "HRcoM", desc: "Enterprise HR & internship management platform with an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings), facial recognition attendance, real-time notifications via Socket.io, and 50+ documented REST endpoints.", stack: ["React", "TypeScript", "Node.js", "MongoDB", "Groq", "Socket.io"] },
+              { id: "thinkboard" as const, tag: "FULL-STACK", title: "ThinkBoard", desc: "A MERN-stack note-taking app with full CRUD functionality, rate limiting via Upstash, Tailwind + DaisyUI interface, deployed on Render with uptime monitoring.", stack: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"] },
+              { id: "internshive" as const, tag: "FULL-STACK", title: "InternsHive", desc: "A full-stack internship platform built with a colleague — user authentication, CRUD operations, and a responsive UI for a seamless internship search experience.", stack: ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "SQLite"] },
+              { id: "jobquest" as const, tag: "FRONT-END", title: "JobQuest", desc: "A LinkedIn-style professional networking platform with responsive layouts and interactive features, designed and built independently from concept to deployment.", stack: ["HTML", "CSS", "JavaScript"] },
             ].map((p, i) => (
               <Reveal key={p.title} delay={300 + i * 150}>
                 <div className="feature-card p-7 flex flex-col h-full relative">
                   <div className="fc-icon-bg" />
-                  <div className="relative">
-                    <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-6"><BinaryText text={`▪ ${p.tag}`} /></div>
-                    <h3 className="fc-title text-2xl font-bold text-white"><GlitchReveal text={p.title} /></h3>
-                    <p className="text-[#999] text-sm mt-3 leading-relaxed">{p.desc}</p>
+                  <div className="relative flex flex-col h-full">
+                    <ProjectThumbnail title={p.title} tag={p.tag} type={p.id} />
+                    <div className="fc-icon text-[10px] uppercase tracking-[0.25em] text-[#7c3aed] mb-4"><BinaryText text={`▪ ${p.tag}`} /></div>
+                    <h3 className="fc-title text-2xl font-bold text-white mb-2"><GlitchReveal text={p.title} /></h3>
+                    <p className="text-[#999] text-sm leading-relaxed flex-1">{p.desc}</p>
                     <div className="flex flex-wrap gap-2 mt-6">
                       {p.stack.map((s) => (
                         <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1"><BinaryText text={s} /></span>
                       ))}
                     </div>
-                    <a href="#" className="block mt-8 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"><BinaryText text="View Project" /> ↗</a>
+                    <a href="#" className="block mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"><BinaryText text="View Project" /> ↗</a>
                   </div>
                 </div>
               </Reveal>

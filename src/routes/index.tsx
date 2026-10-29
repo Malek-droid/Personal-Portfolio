@@ -928,12 +928,12 @@ const SystemStatus = () => (
         <WindowPanel label="status.log" tag="LIVE">
           <div className="divide-y divide-[#1a1a1a]">
             {[
-              { n: "HRcoM", s: "Delivered", statusClass: "text-[#7c3aed]", dotClass: "live-dot" },
-              { n: "CHROFA", s: "On GitHub · deploying soon", statusClass: "text-[#ffbd2e]", dotClass: "w-2 h-2 rounded-full bg-[#ffbd2e]" },
-              { n: "AI Model Drift Monitor", s: "On GitHub · deploying soon", statusClass: "text-[#ffbd2e]", dotClass: "w-2 h-2 rounded-full bg-[#ffbd2e]" },
-              { n: "ThinkBoard", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
-              { n: "InternsHive", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
-              { n: "JobQuest", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "HRcoM", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "CHROFA", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "AI Model Drift Monitor", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "ThinkBoard", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
+              { n: "InternsHive", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
+              { n: "JobQuest", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
             ].map((p, i) => (
               <div key={p.n} className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-6 px-5 py-4">
                 <span className={p.dotClass} />
@@ -956,7 +956,7 @@ const ConsensusCard = ({ role, company, lines, outcome }: { role: string; compan
       <div className="w-10 h-10 rounded-full bg-[#7c3aed] flex items-center justify-center text-white font-black text-sm">MB</div>
       <div>
         <div className="text-white text-sm font-bold"><BinaryText text="Malek Ben Salah" /></div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText text={`${role} · ${company}`} /></div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText key={`${role} · ${company}`} text={`${role} · ${company}`} /></div>
       </div>
       <div className="ml-auto font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText text="build-log" /></div>
     </div>
@@ -972,7 +972,7 @@ const ConsensusCard = ({ role, company, lines, outcome }: { role: string; compan
       <span className="text-[#27c93f] text-lg leading-none">✓</span>
       <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#27c93f]"><BinaryText text="Outcome" /></div>
-        <div className="text-white text-sm mt-1"><BinaryText text={outcome} /></div>
+        <div className="text-white text-sm mt-1"><BinaryText key={outcome} text={outcome} /></div>
       </div>
     </div>
   </div>
@@ -983,28 +983,7 @@ function Index() {
     {
       company: "ZeTheta",
       role: "AI Analyst Intern",
-      period: "September 2026, 15 days",
-      bullets: [
-        "Designed and delivered an end-to-end model drift and observability monitoring system for financial fraud detection",
-        "Implemented data drift detection with two-sample Kolmogorov-Smirnov tests across 29 features",
-        "Built a 2-of-3 consensus rule (recall, F1, ROC-AUC) for concept drift, without assuming causality",
-        "Validated the pipeline with 5 controlled scenarios",
-        "Built a React 19 + TypeScript observability dashboard",
-      ],
-      stack: ["Python", "pandas", "SciPy", "scikit-learn", "React", "TypeScript"],
-      log: [
-        "Designed and delivered end-to-end model drift & observability system",
-        "Implemented KS-test data drift detection across 29 features",
-        "Built 2-of-3 consensus rule for concept drift",
-        "Validated pipeline with 5 controlled scenarios",
-        "Built React 19 + TypeScript observability dashboard",
-      ],
-      outcome: "Open source on GitHub · 284K+ transactions analyzed · 5/5 scenarios passed",
-    },
-    {
-      company: "DotJcoM",
-      role: "Software Engineering Intern",
-      period: "Feb 2026 — Jun 2026",
+      period: "September 2026 · 15 Days",
       bullets: [
         "Architected and delivered HRcoM, a full-stack enterprise HR platform, end-to-end.",
         "Engineered an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings + cosine similarity).",
@@ -1024,6 +1003,27 @@ function Index() {
         "Covered with Jest unit + Playwright E2E suites",
       ],
       outcome: "Production-ready platform · 50+ endpoints · 16+ modules",
+    },
+    {
+      company: "DotJcoM",
+      role: "Full-Stack Web Developer & AI Engineering Intern",
+      period: "Feb 2026 — Jun 2026",
+      bullets: [
+        "Designed and delivered an end-to-end model drift and observability monitoring system for financial fraud detection",
+        "Implemented data drift detection with two-sample Kolmogorov-Smirnov tests across 29 features",
+        "Built a 2-of-3 consensus rule (recall, F1, ROC-AUC) for concept drift, without assuming causality",
+        "Validated the pipeline with 5 controlled scenarios",
+        "Built a React 19 + TypeScript observability dashboard",
+      ],
+      stack: ["Python", "pandas", "SciPy", "scikit-learn", "React", "TypeScript"],
+      log: [
+        "Designed and delivered end-to-end model drift & observability system",
+        "Implemented KS-test data drift detection across 29 features",
+        "Built 2-of-3 consensus rule for concept drift",
+        "Validated pipeline with 5 controlled scenarios",
+        "Built React 19 + TypeScript observability dashboard",
+      ],
+      outcome: "Open source on GitHub · 284K+ transactions analyzed · 5/5 scenarios passed",
     },
   ];
   const groups = [
@@ -1074,7 +1074,7 @@ function Index() {
       <section className="relative overflow-hidden border-b border-[#1a1a1a]">
         <AmbientBg text={HERO_AMBIENT} />
         <div className="absolute inset-0 hero-glow pointer-events-none" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 md:py-40 grid md:grid-cols-2 gap-16 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-10 pb-16 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24 grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
             <h1 className="font-black text-5xl md:text-7xl leading-[1.02] tracking-tight">
@@ -1389,10 +1389,10 @@ function Index() {
             <div>
               <div className="border border-[#1e1e1e] bg-[#0a0a0a] p-8">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
-                  <h3 className="text-2xl font-bold text-white"><BinaryText text={exp.role} /></h3>
-                  <span className="font-mono text-[12px] text-[#555] uppercase"><BinaryText text={exp.period} /></span>
+                  <h3 className="text-2xl font-bold text-white"><BinaryText key={exp.role} text={exp.role} /></h3>
+                  <span className="font-mono text-[12px] text-[#555] uppercase"><BinaryText key={exp.period} text={exp.period} /></span>
                 </div>
-                <div className="text-[#7c3aed] font-mono text-sm mb-6"><BinaryText text={`@ ${exp.company}`} /></div>
+                <div className="text-[#7c3aed] font-mono text-sm mb-6"><BinaryText key={exp.company} text={`@ ${exp.company}`} /></div>
                 <ul className="space-y-3">
                   {exp.bullets.map((b) => (
                     <li key={b} className="flex gap-3 text-[#999] leading-relaxed">

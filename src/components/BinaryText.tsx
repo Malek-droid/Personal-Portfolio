@@ -299,6 +299,10 @@ export function BinaryText({
     };
   }, [restoreRealText]);
 
+  useEffect(() => {
+    restoreRealText();
+  }, [text, restoreRealText]);
+
   // -------------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------------
@@ -319,7 +323,7 @@ export function BinaryText({
       <span aria-hidden="true" style={{ pointerEvents: "none" }}>
         {chars.map((char, i) => (
           <span
-            key={i}
+            key={`${text}-${i}`}
             ref={(el) => {
               charRefs.current[i] = el;
             }}

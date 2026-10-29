@@ -5,9 +5,7 @@
  */
 import { Component, useEffect, useState, type ReactNode, type ErrorInfo } from "react";
 import { GitHubCalendar as GitHubCalendarLib } from "react-github-calendar";
-
-/* ── Named constants ── */
-const GITHUB_USERNAME = "malekbensalah";
+import { GITHUB_USERNAME } from "@/config/github";
 
 /**
  * Five colour levels from near-black to site violet #7c3aed.

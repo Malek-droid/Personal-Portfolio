@@ -6,6 +6,7 @@ import { CommandTerminal } from "@/components/CommandTerminal";
 import { useCommandTerminalShortcut } from "@/hooks/useCommandTerminalShortcut";
 import { LiveClock as FooterClock } from "@/components/LiveClock";
 import { GitHubCalendar } from "@/components/GitHubCalendar";
+import { GitHubActivityTable } from "@/components/GitHubActivityTable";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { GlitchReveal } from "@/components/GlitchReveal";
 import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
@@ -63,19 +64,49 @@ function useReveal<T extends HTMLElement>() {
 }
 
 /* ---------- Components ---------- */
-const SectionTag = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
+const SectionTag = ({
+  children,
+  delay = 0,
+  num,
+  darkPill = false,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  num?: string;
+  darkPill?: boolean;
+}) => {
   const ref = useReveal<HTMLDivElement>();
   return (
     <div
       ref={ref}
-      className="reveal flex items-center gap-2 text-[11px] tracking-[0.25em] uppercase text-[#555] mb-6"
+      className={`reveal flex items-center gap-2 text-[11px] font-mono tracking-[0.25em] uppercase mb-6 ${
+        darkPill ? "text-purple-200" : "text-[#777]"
+      }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <span className="inline-block w-2 h-2 bg-[#7c3aed]" />
+      <span
+        className={`inline-block w-2 h-2 ${
+          darkPill ? "bg-white" : "bg-[#7c3aed]"
+        }`}
+      />
+      {num ? (
+        <span className={darkPill ? "text-white font-bold" : "text-[#7c3aed] font-semibold"}>
+          {num} //
+        </span>
+      ) : null}
       {typeof children === "string" ? <BinaryText text={children} /> : children}
     </div>
   );
 };
+
+const CrosshairCorners = () => (
+  <>
+    <span className="crosshair top-1 left-1.5" aria-hidden="true">+</span>
+    <span className="crosshair top-1 right-1.5" aria-hidden="true">+</span>
+    <span className="crosshair bottom-1 left-1.5" aria-hidden="true">+</span>
+    <span className="crosshair bottom-1 right-1.5" aria-hidden="true">+</span>
+  </>
+);
 
 const Heading = ({ a, b }: { a: string; b: string }) => {
   return (
@@ -257,7 +288,8 @@ const Reveal = ({ children, delay = 0, className = "" }: { children: React.React
 
 /* ---------- Window panel (mini top-bar shell) ---------- */
 const WindowPanel = ({ label, tag, children, className = "" }: { label: string; tag?: React.ReactNode; children: React.ReactNode; className?: string }) => (
-  <div className={`bg-[#0a0a0a] border border-[#1e1e1e] ${className}`}>
+  <div className={`relative bg-[#0a0a0a] border border-[#1e1e1e] hover:border-dashed-purple transition-colors ${className}`}>
+    <CrosshairCorners />
     <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e1e1e]">
       <div className="flex items-center gap-3">
         <div className="flex gap-1.5">
@@ -690,7 +722,7 @@ const RequestPath = () => {
 const Benchmark = () => (
   <section className="border-b border-[#1a1a1a] py-32">
     <div className="max-w-7xl mx-auto px-6">
-      <SectionTag>By the numbers</SectionTag>
+      <SectionTag num="04">By the numbers</SectionTag>
       <Heading a="Real numbers." b="No filler." />
       <div className="grid md:grid-cols-2 gap-4 mt-16">
         <Reveal delay={200}>
@@ -862,7 +894,7 @@ const AI_TOOLKIT = [
 const UnderTheHood = () => (
   <section className="border-b border-[#1a1a1a] py-32">
     <div className="max-w-7xl mx-auto px-6">
-      <SectionTag>AI Toolkit</SectionTag>
+      <SectionTag num="06">AI Toolkit</SectionTag>
       <Heading a="AI isn't a feature." b="It's how I build." />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-16">
         {AI_TOOLKIT.map((p, i) => (
@@ -917,7 +949,7 @@ const Sparkline = ({ seed = 0 }: { seed?: number }) => {
 const SystemStatus = () => (
   <section className="border-b border-[#1a1a1a] py-32">
     <div className="max-w-7xl mx-auto px-6">
-      <SectionTag>System status</SectionTag>
+      <SectionTag num="03">System status</SectionTag>
       <Heading a="Always learning." b="Always shipping." />
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-12 font-mono text-[11px] uppercase tracking-[0.2em] text-[#666]">
         <span><span className="text-white">6</span> Projects Built</span>
@@ -1144,7 +1176,7 @@ function Index() {
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-start gap-[60px]">
             <div className="md:basis-[55%] md:flex-1 md:min-w-0">
-              <SectionTag>About Me</SectionTag>
+              <SectionTag num="01">About Me</SectionTag>
               <Heading a="Code with intent." b="AI with purpose." />
               <Reveal delay={300} className="space-y-5 text-[#999] leading-relaxed mt-16 block">
                 <p>Software Engineering graduate from FSM (June 2026), now pursuing a Master's in Information Systems Engineering. Passionate about full-stack development with a deep focus on applied AI. Across the MERN stack, REST API design and LLM integration, I have built an AI-powered CV ranking pipeline for an enterprise HR platform (Groq + vector embeddings), an AI-assisted booking SaaS, and a statistical model-drift monitoring system for fraud detection. I own projects end-to-end: database, backend, real-time systems and polished UI. Curious, calm under pressure, driven to ship things that work.</p>
@@ -1170,8 +1202,8 @@ function Index() {
                   />
                   <style>{`
                     @keyframes catQuietFloat {
-                      0%, 100% { transform: translateY(0px); }
-                      50% { transform: translateY(-8px); }
+                       0%, 100% { transform: translateY(0px); }
+                       50% { transform: translateY(-8px); }
                     }
                     .cat-float-quiet {
                       animation: catQuietFloat 6s ease-in-out infinite;
@@ -1190,7 +1222,8 @@ function Index() {
                 </div>
               </Reveal>
               <Reveal delay={450} className="w-full">
-                <div className="bg-[#0a0a0a] border border-[#1e1e1e] p-8 font-mono text-[13px] space-y-5">
+                <div className="relative bg-[#0a0a0a] border border-[#1e1e1e] hover:border-dashed-purple transition-colors p-8 font-mono text-[13px] space-y-5">
+                  <CrosshairCorners />
                   {[
                     ["LOCATION", "Monastir, Tunisia"],
                     ["STATUS", "Master's student, open to part-time, internship & freelance"],
@@ -1213,7 +1246,7 @@ function Index() {
       <section className="relative border-b border-[#1a1a1a] py-32">
         <AmbientBg text={SKILLS_AMBIENT} />
         <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <SectionTag>Stack</SectionTag>
+          <SectionTag num="02">Stack</SectionTag>
           <Heading a="Every layer." b="One engineer." />
           <div className="dot-line mt-12" />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
@@ -1242,19 +1275,25 @@ function Index() {
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="border-b border-[#1a1a1a]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4">
+      {/* STATS (Purple Band 1 of 2) */}
+      <section className="purple-band border-y border-[#7c3aed]/40 py-16 md:py-20 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               { n: 6, s: "", l: "Projects Built" },
               { n: 50, s: "+", l: "API Endpoints Built" },
               { n: 16, s: "+", l: "Modules Shipped" },
               { n: 284, s: "K+", l: "Transactions Analyzed" },
-            ].map((stat, i) => (
-              <div key={stat.l} className={`py-16 px-6 text-center ${i !== 0 ? "md:border-l border-[#1e1e1e]" : ""} ${i % 2 === 1 ? "border-l md:border-l border-[#1e1e1e]" : ""} ${i >= 2 ? "border-t md:border-t-0 border-[#1e1e1e]" : ""}`}>
+            ].map((stat) => (
+              <div
+                key={stat.l}
+                className="relative bg-[#0a0a0a] border border-[#7c3aed]/30 p-8 text-center shadow-xl hover:border-dashed-purple transition-colors"
+              >
+                <CrosshairCorners />
                 <StatNumber value={stat.n} suffix={stat.s} />
-                <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mt-3"><BinaryText text={stat.l} /></div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-[#999] mt-3 font-mono">
+                  <BinaryText text={stat.l} />
+                </div>
               </div>
             ))}
           </div>
@@ -1271,7 +1310,7 @@ function Index() {
       <section id="projects" className="relative border-b border-[#1a1a1a] py-32">
         <AmbientBg text={PROJ_AMBIENT} />
         <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <SectionTag>Projects</SectionTag>
+          <SectionTag num="05">Projects</SectionTag>
           <Heading a="Things I've built." b="That actually ship." />
           <div className="grid md:grid-cols-2 gap-4 mt-16">
             {[
@@ -1364,7 +1403,7 @@ function Index() {
       {/* EXPERIENCE */}
       <section id="experience" className="border-b border-[#1a1a1a] py-32">
         <div className="max-w-7xl mx-auto px-6">
-          <SectionTag>Experience</SectionTag>
+          <SectionTag num="07">Experience</SectionTag>
           <Heading a="Where I've shipped." b="What I've learned." />
           <div className="grid md:grid-cols-[260px_1fr] gap-4 mt-16">
             <div className="flex md:flex-col border border-[#1e1e1e] bg-[#0a0a0a] overflow-x-auto md:overflow-visible">
@@ -1387,7 +1426,8 @@ function Index() {
               ))}
             </div>
             <div>
-              <div className="border border-[#1e1e1e] bg-[#0a0a0a] p-8">
+              <div className="relative border border-[#1e1e1e] bg-[#0a0a0a] hover:border-dashed-purple transition-colors p-8">
+                <CrosshairCorners />
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-6">
                   <h3 className="text-2xl font-bold text-white"><BinaryText key={exp.role} text={exp.role} /></h3>
                   <span className="font-mono text-[12px] text-[#555] uppercase"><BinaryText key={exp.period} text={exp.period} /></span>
@@ -1416,7 +1456,7 @@ function Index() {
       {/* TESTIMONIALS */}
       <section className="border-b border-[#1a1a1a] py-32">
         <div className="max-w-7xl mx-auto px-6">
-          <SectionTag>Recognition</SectionTag>
+          <SectionTag num="08">Recognition</SectionTag>
           <Heading a="Still early." b="Building my track record." />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
             {[
@@ -1446,37 +1486,55 @@ function Index() {
       <section className="border-b border-[#1a1a1a] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <Reveal>
-            <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#555] mb-6">
-              // github activity
+            <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.25em] text-[#777] mb-6">
+              <span className="inline-block w-2 h-2 bg-[#7c3aed]" />
+              <span className="text-[#7c3aed] font-semibold">09 //</span>
+              <BinaryText text="GitHub Activity" />
             </div>
             <GitHubCalendar />
+            <GitHubActivityTable />
           </Reveal>
         </div>
       </section>
 
-      {/* CONTACT */}
-      <section id="contact" className="border-b border-[#1a1a1a] py-32">
-        <div className="max-w-7xl mx-auto px-6">
-          <SectionTag>Contact</SectionTag>
-          <Heading a="Let's build something." b="That matters." />
+      {/* CONTACT (Purple Band 2 of 2) */}
+      <section id="contact" className="purple-band border-y border-[#7c3aed]/50 py-24 md:py-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <SectionTag num="10" darkPill>Contact</SectionTag>
+          <h2 className="font-black text-4xl md:text-6xl leading-[1.05] tracking-tight">
+            <span className="block text-white"><GlitchReveal text="Let's build something." delayMs={100} /></span>
+            <span className="block text-purple-200/90"><GlitchReveal text="That matters." delayMs={200} /></span>
+          </h2>
           <div className="grid md:grid-cols-2 gap-12 mt-16 items-start">
             <div>
-              <p className="text-[#999] text-lg leading-relaxed max-w-md">
+              <p className="text-purple-100/90 text-lg leading-relaxed max-w-md">
                 Got a project that needs shipping? I'm open to part-time roles, internships and freelance work. Let's talk.
               </p>
               <div className="flex flex-wrap gap-3 mt-10">
-                <FilledBtn href="mailto:malekbensalah056@gmail.com">Send a Message</FilledBtn>
-                <GhostBtn href={CV_FILE_PATH}>Download CV</GhostBtn>
+                <a
+                  href="mailto:malekbensalah056@gmail.com"
+                  className="inline-flex items-center gap-3 px-6 py-3.5 bg-white text-black font-mono font-bold text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-neutral-100 transition-all hover:translate-x-0.5"
+                >
+                  <span><BinaryText text="Send a Message" /></span>
+                  <span>↗</span>
+                </a>
+                <a
+                  href={CV_FILE_PATH}
+                  className="inline-flex items-center gap-3 px-6 py-3.5 bg-black/40 hover:bg-black/60 text-white border border-white/30 font-mono text-xs uppercase tracking-[0.2em] backdrop-blur-sm transition-all"
+                >
+                  <BinaryText text="Download CV" />
+                </a>
               </div>
             </div>
-            <div className="bg-[#0d0d0d] border border-[#222]">
+            <div className="relative bg-[#0a0a0a] border border-white/15 shadow-2xl">
+              <CrosshairCorners />
               <div className="flex items-center px-4 py-3 border-b border-[#1e1e1e] relative">
                 <div className="flex gap-2">
                   <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
                   <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
                   <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
                 </div>
-                <div className="absolute inset-0 flex items-center justify-center text-[11px] font-mono uppercase tracking-[0.2em] text-[#555] pointer-events-none">
+                <div className="absolute inset-0 flex items-center justify-center text-[11px] font-mono uppercase tracking-[0.2em] text-[#777] pointer-events-none">
                   contact.sh
                 </div>
               </div>
@@ -1489,7 +1547,7 @@ function Index() {
                   ["LOCATION", "Monastir, Tunisia"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 last:border-0 last:pb-0">
-                    <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]"><BinaryText text={`${k} →`} /></span>
+                    <span className="text-[#666] uppercase tracking-[0.2em] text-[11px]"><BinaryText text={`${k} →`} /></span>
                     <span className="text-white"><BinaryText text={v} /></span>
                   </div>
                 ))}

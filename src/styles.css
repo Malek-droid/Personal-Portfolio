@@ -49,6 +49,10 @@ html[data-booting] body { visibility: hidden; }
   --violet: #7c3aed;
   --violet-glow: #8b5cf6;
   --radius: 2px;
+
+  /* ── 1. Background Code Rain Visibility Config (fine-tune here) ── */
+  --ambient-code-opacity: 0.055; /* ~1.8x original 0.03 for subtle texture */
+  --ambient-code-color: #a78bfa;   /* light luminous purple (Tailwind violet-400) */
 }
 
 @layer base {
@@ -159,11 +163,14 @@ html[data-booting] body { visibility: hidden; }
   /* Ambient terminal bg */
   .ambient-bg {
     position: absolute; inset: 0;
-    opacity: 0.03; pointer-events: none; z-index: 0;
+    opacity: var(--ambient-code-opacity, 0.055);
+    pointer-events: none; z-index: 0;
     overflow: hidden;
     font-family: "JetBrains Mono", ui-monospace, monospace;
-    font-size: 11px; line-height: 1.6; color: #fff;
+    font-size: 11px; line-height: 1.6;
+    color: var(--ambient-code-color, #a78bfa);
     white-space: pre;
+    transition: opacity 300ms ease;
   }
   .ambient-bg-inner {
     animation: ambientScroll 60s linear infinite;
@@ -171,6 +178,14 @@ html[data-booting] body { visibility: hidden; }
   @keyframes ambientScroll {
     from { transform: translateY(0); }
     to { transform: translateY(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-bg-inner {
+      animation: none !important;
+    }
+    .ambient-bg {
+      opacity: 0.02 !important;
+    }
   }
 
   /* Nav underline */
@@ -233,6 +248,34 @@ html[data-booting] body { visibility: hidden; }
 
   /* Experience group label */
   .exp-group-label { padding: 14px 20px 8px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.25em; color: #555; text-transform: uppercase; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; gap: 8px; }
+
+  /* ── 3. Purple Band (full-bleed contrast flood with fine grid texture) ── */
+  .purple-band {
+    background-color: #5b21b6;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    position: relative;
+  }
+
+  /* Thin dashed purple borders */
+  .border-dashed-purple {
+    border-style: dashed !important;
+    border-color: rgba(124, 58, 237, 0.45) !important;
+  }
+
+  /* Crosshair marker for tech panel corners */
+  .crosshair {
+    position: absolute;
+    font-family: var(--font-mono, monospace);
+    font-size: 10px;
+    line-height: 1;
+    color: rgba(167, 139, 250, 0.5);
+    user-select: none;
+    pointer-events: none;
+    z-index: 2;
+  }
   .exp-group-label::before { content: "▪"; color: #7c3aed; }
 
   /* Bench bar */

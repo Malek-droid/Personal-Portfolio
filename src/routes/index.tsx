@@ -16,13 +16,24 @@ import {
   type MotionValue,
 } from "motion/react";
 
+export const PROJECT_LINKS = {
+  hrcom: "",
+  chrofa: "",
+  driftMonitor: "",
+  thinkboard: "",
+  internshive: "",
+  jobquest: "",
+};
+
+export const CV_FILE_PATH = "/cv.pdf";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Malek Ben Salah — Full-Stack Developer" },
-      { name: "description", content: "Final-year Software Engineering student specializing in full-stack development with applied AI. Code that thinks. AI that ships." },
-      { property: "og:title", content: "Malek Ben Salah — Full-Stack Developer" },
-      { property: "og:description", content: "Final-year Software Engineering student specializing in full-stack development with applied AI." },
+      { title: "Malek Ben Salah — AI-Driven Full-Stack Developer" },
+      { name: "description", content: "Software Engineering graduate and Master's student building full-stack platforms with applied AI. Open to part-time, internship and freelance work." },
+      { property: "og:title", content: "Malek Ben Salah — AI-Driven Full-Stack Developer" },
+      { property: "og:description", content: "Software Engineering graduate and Master's student building full-stack platforms with applied AI. Open to part-time, internship and freelance work." },
     ],
   }),
   component: Index,
@@ -154,7 +165,7 @@ const HERO_AMBIENT = `$ deploy --env production
 ✓ deployed in 1.4s
 $ git push origin main
 remote: pipeline triggered
-$ curl -X POST https://api.alex.dev/agent
+$ curl -X POST https://api.malek.dev/agent
 { "status": "ok", "latency_ms": 38 }
 $ docker compose up -d
 $ pnpm test --watch
@@ -676,48 +687,45 @@ const RequestPath = () => {
 };
 
 /* ---------- 2. Benchmark chart ---------- */
-function BenchBar({ label, value, violet = false, suffix = "%" }: { label: string; value: number; violet?: boolean; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const io = new IntersectionObserver((e) => {
-      if (e[0].isIntersecting) { el.style.width = value + "%"; io.disconnect(); }
-    }, { threshold: 0.4 });
-    io.observe(el.parentElement!.parentElement!);
-    return () => io.disconnect();
-  }, [value]);
-  return (
-    <div className="grid grid-cols-[140px_1fr_50px] items-center gap-4 py-2">
-      <span className="font-mono text-[12px] text-[#999]"><BinaryText text={label} /></span>
-      <div className={`bench-bar ${violet ? "violet" : ""}`}><span ref={ref} style={{ width: 0 }} /></div>
-      <span className={`font-mono text-[12px] text-right ${violet ? "text-[#7c3aed]" : "text-[#666]"}`}>{value}{suffix}</span>
-    </div>
-  );
-}
 const Benchmark = () => (
   <section className="border-b border-[#1a1a1a] py-32">
     <div className="max-w-7xl mx-auto px-6">
       <SectionTag>By the numbers</SectionTag>
-      <Heading a="Same stack." b="Sharper execution." />
+      <Heading a="Real numbers." b="No filler." />
       <div className="grid md:grid-cols-2 gap-4 mt-16">
         <Reveal delay={200}>
-          <WindowPanel label="stack-proficiency" tag="[ FIG.01 ]">
-            <div className="p-6">
-              <BenchBar label="React / TS" value={94} violet />
-              <BenchBar label="Node.js / Express" value={90} />
-              <BenchBar label="MongoDB" value={86} />
-              <BenchBar label="AI / LLM Integration" value={82} />
-              <BenchBar label="Socket.io / Real-time" value={78} />
+          <WindowPanel label="scale" tag="[ FIG.01 ]">
+            <div className="p-6 divide-y divide-[#1a1a1a]">
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">HRcoM:</span>{" "}
+                <span className="text-[#ccc]">50+ REST endpoints · 16+ modules</span>
+              </div>
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">AI Model Drift Monitor:</span>{" "}
+                <span className="text-[#ccc]">284,807 transactions · 29 features tested · 5 validation scenarios</span>
+              </div>
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">CHROFA:</span>{" "}
+                <span className="text-[#ccc]">AI booking · email + WhatsApp + Google Calendar integrations</span>
+              </div>
             </div>
           </WindowPanel>
         </Reveal>
         <Reveal delay={350}>
-          <WindowPanel label="project-velocity" tag="[ FIG.02 ]">
-            <div className="p-6">
-              <BenchBar label="HRcoM" value={100} violet suffix=" feat" />
-              <BenchBar label="ThinkBoard" value={42} suffix=" feat" />
-              <BenchBar label="InternsHive" value={36} suffix=" feat" />
-              <BenchBar label="JobQuest" value={22} suffix=" feat" />
+          <WindowPanel label="quality-checks" tag="[ FIG.02 ]">
+            <div className="p-6 divide-y divide-[#1a1a1a]">
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">HRcoM:</span>{" "}
+                <span className="text-[#ccc]">unit, integration and E2E tests (Jest, Playwright)</span>
+              </div>
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">AI Model Drift Monitor:</span>{" "}
+                <span className="text-[#ccc]">35-point dashboard contract check · 10-point scientific audit</span>
+              </div>
+              <div className="py-3 font-mono text-[12px] leading-relaxed">
+                <span className="text-[#7c3aed] font-bold">CHROFA:</span>{" "}
+                <span className="text-[#ccc]">Zod validation · rate limiting · NoSQL injection protection</span>
+              </div>
             </div>
           </WindowPanel>
         </Reveal>
@@ -776,66 +784,104 @@ function ModuleSelector() {
 
 /* ---------- 4. AI Toolkit ---------- */
 const AI_TOOLKIT = [
-  { f: "llm/integration.ts", n: "LLM Integration", c: [
-    "const res = await groq.chat",
-    "  .completions.create({",
-    "    model: 'llama-3.1-70b',",
-    "    messages: [{ role:'user',",
-    "      content: prompt }],",
-    "  });",
-  ], v: 0.94 },
-  { f: "ai/embeddings.ts", n: "Vector Embeddings", c: [
-    "const v1 = await embed(cv);",
-    "const v2 = await embed(job);",
-    "const score = cosine(v1, v2);",
-    "return rank(score);",
-  ], v: 0.91 },
-  { f: "ai/vision.ts", n: "Computer Vision", c: [
-    "const det = await faceapi",
-    "  .detectAllFaces(img)",
-    "  .withFaceLandmarks()",
-    "  .withFaceDescriptors();",
-    "return match(det, known);",
-  ], v: 0.88 },
-  { f: "ai/prompting.ts", n: "Prompt Engineering", c: [
-    "const prompt = `",
-    "Role: HR analyst.",
-    "Task: Score CV vs role.",
-    "Context: ${role}",
-    "Input: ${cv}",
-    "Output: JSON { score, why }`;",
-  ], v: 0.92 },
-  { f: "ai/automation.ts", n: "AI-Assisted Workflows", c: [
-    "const ranked = candidates",
-    "  .map(scoreWithLLM)",
-    "  .sort((a,b) => b.s - a.s);",
-    "await notify(ranked.slice(0,5));",
-  ], v: 0.90 },
+  {
+    f: "llm/integration.ts",
+    n: "LLM Integration",
+    c: [
+      "// Groq (LLaMA 3.3 70B) + local Ollama",
+      "const res = await groq.chat",
+      "  .completions.create({",
+      "    model: 'llama-3.3-70b',",
+      "    messages: [{ role:'user',",
+      "      content: prompt }],",
+      "  });",
+    ],
+    usedIn: "HRcoM · CHROFA",
+  },
+  {
+    f: "ai/embeddings.ts",
+    n: "Vector Embeddings",
+    c: [
+      "const v1 = await embed(cv);",
+      "const v2 = await embed(job);",
+      "const score = cosine(v1, v2);",
+      "return rank(score);",
+    ],
+    usedIn: "HRcoM",
+  },
+  {
+    f: "ai/vision.ts",
+    n: "Computer Vision",
+    c: [
+      "const det = await faceapi",
+      "  .detectAllFaces(img)",
+      "  .withFaceLandmarks()",
+      "  .withFaceDescriptors();",
+      "return match(det, known);",
+    ],
+    usedIn: "HRcoM",
+  },
+  {
+    f: "ai/prompting.ts",
+    n: "Prompt Engineering",
+    c: [
+      "const prompt = `",
+      "Role: HR analyst.",
+      "Task: Score CV vs role.",
+      "Context: ${role}",
+      "Input: ${cv}",
+      "Output: JSON { score, why }`;",
+    ],
+    usedIn: "HRcoM · CHROFA",
+  },
+  {
+    f: "ai/automation.ts",
+    n: "AI-Assisted Workflows",
+    c: [
+      "const ranked = candidates",
+      "  .map(scoreWithLLM)",
+      "  .sort((a,b) => b.s - a.s);",
+      "await notify(ranked.slice(0,5));",
+    ],
+    usedIn: "HRcoM · CHROFA",
+  },
+  {
+    f: "ml/drift.py",
+    n: "Statistical Monitoring",
+    c: [
+      "# KS-test data drift & concept drift",
+      "ks_stat, p_val = ks_2samp(ref, curr)",
+      "data_drift = p_val < 0.05",
+      "consensus = sum([",
+      "  recall_drop, f1_drop, roc_drop",
+      "]) >= 2",
+    ],
+    usedIn: "AI Model Drift Monitor",
+  },
 ];
 const UnderTheHood = () => (
   <section className="border-b border-[#1a1a1a] py-32">
     <div className="max-w-7xl mx-auto px-6">
       <SectionTag>AI Toolkit</SectionTag>
       <Heading a="AI isn't a feature." b="It's how I build." />
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mt-16">
-        {AI_TOOLKIT.map((p, i) => {
-          const isTop = p.v === Math.max(...AI_TOOLKIT.map(x => x.v));
-          return (
-            <Reveal key={p.f} delay={200 + i * 100}>
-              <div className="bg-[#0a0a0a] border border-[#1e1e1e] h-full flex flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-16">
+        {AI_TOOLKIT.map((p, i) => (
+          <Reveal key={p.f} delay={200 + i * 100}>
+            <div className="bg-[#0a0a0a] border border-[#1e1e1e] h-full flex flex-col justify-between">
+              <div>
                 <div className="px-3 py-2 border-b border-[#1e1e1e] font-mono text-[10px] text-[#666] truncate"><BinaryText text={p.f} /></div>
                 <div className="p-4 flex-1">
                   <div className="text-[10px] uppercase tracking-[0.2em] text-[#7c3aed] mb-3 font-mono"><BinaryText text={`▪ ${p.n}`} /></div>
                   <pre className="font-mono text-[11px] text-[#999] leading-relaxed whitespace-pre-wrap">{p.c.join("\n")}</pre>
                 </div>
-                <div className="px-4 pb-4">
-                  <div className={`bench-bar ${isTop ? "violet" : ""}`}><span style={{ width: `${p.v * 100}%` }} /></div>
-                  <div className={`mt-2 font-mono text-[11px] ${isTop ? "text-[#7c3aed]" : "text-[#666]"}`}>{p.v.toFixed(2)}</div>
-                </div>
               </div>
-            </Reveal>
-          );
-        })}
+              <div className="px-4 pb-4 pt-2 border-t border-[#1a1a1a] flex items-center justify-between font-mono text-[10px]">
+                <span className="text-[#555] uppercase tracking-wider">Used in:</span>
+                <span className="text-[#7c3aed] font-medium"><BinaryText text={p.usedIn} /></span>
+              </div>
+            </div>
+          </Reveal>
+        ))}
       </div>
       <div className="text-center mt-10 font-mono text-[11px] uppercase tracking-[0.3em] text-[#555]">
         APPLIED ACROSS EVERY PROJECT — NOT JUST ONE
@@ -874,9 +920,7 @@ const SystemStatus = () => (
       <SectionTag>System status</SectionTag>
       <Heading a="Always learning." b="Always shipping." />
       <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-12 font-mono text-[11px] uppercase tracking-[0.2em] text-[#666]">
-        <span><span className="text-white">4/4</span> Projects Live</span>
-        <span className="text-[#1e1e1e]">·</span>
-        <span><span className="text-white">100%</span> Uptime on curiosity</span>
+        <span><span className="text-white">6</span> Projects Built</span>
         <span className="text-[#1e1e1e]">·</span>
         <span>Last updated <LiveClock /></span>
       </div>
@@ -884,16 +928,18 @@ const SystemStatus = () => (
         <WindowPanel label="status.log" tag="LIVE">
           <div className="divide-y divide-[#1a1a1a]">
             {[
-              { n: "HRcoM", s: "Operational", live: true },
-              { n: "ThinkBoard", s: "Operational", live: true },
-              { n: "InternsHive", s: "Operational", live: true },
-              { n: "JobQuest", s: "Operational", live: true },
+              { n: "HRcoM", s: "Delivered", statusClass: "text-[#7c3aed]", dotClass: "live-dot" },
+              { n: "CHROFA", s: "On GitHub · deploying soon", statusClass: "text-[#ffbd2e]", dotClass: "w-2 h-2 rounded-full bg-[#ffbd2e]" },
+              { n: "AI Model Drift Monitor", s: "On GitHub · deploying soon", statusClass: "text-[#ffbd2e]", dotClass: "w-2 h-2 rounded-full bg-[#ffbd2e]" },
+              { n: "ThinkBoard", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "InternsHive", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "JobQuest", s: "Live", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
             ].map((p, i) => (
               <div key={p.n} className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-6 px-5 py-4">
-                <span className={p.live ? "live-dot" : "w-2 h-2 rounded-full bg-[#ffbd2e]"} />
+                <span className={p.dotClass} />
                 <span className="text-white text-sm font-bold">{p.n}</span>
                 <Sparkline seed={i} />
-                <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${p.live ? "text-[#27c93f]" : "text-[#ffbd2e]"}`}>{p.s}</span>
+                <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${p.statusClass}`}>{p.s}</span>
               </div>
             ))}
           </div>
@@ -934,7 +980,31 @@ const ConsensusCard = ({ role, company, lines, outcome }: { role: string; compan
 
 function Index() {
   const experiences = [
-    { company: "DotJcoM", role: "Software Engineering Intern", period: "2025 — 2026",
+    {
+      company: "ZeTheta",
+      role: "AI Analyst Intern",
+      period: "September 2026, 15 days",
+      bullets: [
+        "Designed and delivered an end-to-end model drift and observability monitoring system for financial fraud detection",
+        "Implemented data drift detection with two-sample Kolmogorov-Smirnov tests across 29 features",
+        "Built a 2-of-3 consensus rule (recall, F1, ROC-AUC) for concept drift, without assuming causality",
+        "Validated the pipeline with 5 controlled scenarios",
+        "Built a React 19 + TypeScript observability dashboard",
+      ],
+      stack: ["Python", "pandas", "SciPy", "scikit-learn", "React", "TypeScript"],
+      log: [
+        "Designed and delivered end-to-end model drift & observability system",
+        "Implemented KS-test data drift detection across 29 features",
+        "Built 2-of-3 consensus rule for concept drift",
+        "Validated pipeline with 5 controlled scenarios",
+        "Built React 19 + TypeScript observability dashboard",
+      ],
+      outcome: "Open source on GitHub · 284K+ transactions analyzed · 5/5 scenarios passed",
+    },
+    {
+      company: "DotJcoM",
+      role: "Software Engineering Intern",
+      period: "Feb 2026 — Jun 2026",
       bullets: [
         "Architected and delivered HRcoM, a full-stack enterprise HR platform, end-to-end.",
         "Engineered an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings + cosine similarity).",
@@ -953,66 +1023,22 @@ function Index() {
         "Designed 50+ REST endpoints, documented with Swagger",
         "Covered with Jest unit + Playwright E2E suites",
       ],
-      outcome: "Production-ready platform · 50+ endpoints · 16+ modules" },
-    { company: "ThinkBoard", role: "Full-Stack Developer", period: "October 2025",
-      bullets: [
-        "Built a MERN-stack note-taking app with full CRUD operations end-to-end.",
-        "Designed and Postman-tested a complete REST API surface.",
-        "Integrated Upstash rate limiting to protect public endpoints.",
-        "Deployed to Render with UptimeRobot live uptime monitoring.",
-        "Styled UI with Tailwind CSS + DaisyUI for a clean, responsive layout.",
-      ],
-      stack: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS", "DaisyUI"],
-      log: [
-        "Scaffolded MERN stack project structure",
-        "Implemented full CRUD with Express + Mongoose",
-        "Verified API surface end-to-end in Postman",
-        "Wired Upstash rate limiting on public routes",
-        "Deployed to Render, hooked UptimeRobot monitoring",
-        "Themed UI with Tailwind + DaisyUI",
-      ],
-      outcome: "Production note-taking app · Rate-limited API · Live uptime monitoring" },
-    { company: "InternsHive", role: "Full-Stack Developer", period: "April 2025",
-      bullets: [
-        "Built a full-stack internship platform with HTML/CSS/JS, Node.js, Express, and SQLite.",
-        "Implemented user authentication and full CRUD for internship listings.",
-        "Designed a responsive UI for browsing and applying to opportunities.",
-        "Managed database schema, queries, and Git-based collaboration.",
-      ],
-      stack: ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "SQLite"],
-      log: [
-        "Set up Node + Express + SQLite backend",
-        "Implemented auth (sessions + hashed passwords)",
-        "Built CRUD for internship listings + applications",
-        "Designed responsive front-end UI",
-        "Managed Git workflow with collaborator",
-      ],
-      outcome: "Full-stack internship platform · Auth + CRUD · SQLite-backed" },
-    { company: "JobQuest", role: "Front-End Developer", period: "November 2024",
-      bullets: [
-        "Built a LinkedIn-style professional networking platform solo, concept to deployment.",
-        "Designed responsive layouts and interactive feed/profile components.",
-        "Owned every layer of the front-end — structure, style, behavior, deploy.",
-      ],
-      stack: ["HTML", "CSS", "JavaScript"],
-      log: [
-        "Sketched information architecture for a networking app",
-        "Built responsive layouts (feed, profile, connections)",
-        "Implemented interactive UI in vanilla JS",
-        "Polished styles for cross-device consistency",
-        "Deployed live",
-      ],
-      outcome: "Solo-built networking platform · Concept to deployment" },
+      outcome: "Production-ready platform · 50+ endpoints · 16+ modules",
+    },
   ];
   const groups = [
-    { label: "Work Experience", idx: [0] },
-    { label: "Personal Projects", idx: [1] },
-    { label: "Freelance", idx: [2, 3] },
+    { label: "Work Experience", idx: [0, 1] },
   ];
   const [active, setActive] = useState(0);
   const exp = experiences[active];
 
-  const techs = ["Java", "C#", "C++", "Python", "C", "JavaScript", "TypeScript", "React", "HTML", "CSS", "Tailwind CSS", "DaisyUI", "Node.js", "Express.js", "REST APIs", "Socket.io", "JWT", "Swagger", "Groq", "LLaMA 3.1", "MongoDB", "MySQL", "SQLite", "Git", "GitHub", "Postman", "Jest", "Playwright", "Docker", "Cloudinary", "Puppeteer"];
+  const techs = [
+    "Python", "TypeScript", "JavaScript", "React", "TanStack", "Tailwind CSS",
+    "Node.js", "Express.js", "REST APIs", "Socket.io", "JWT", "Zod", "Swagger",
+    "Groq", "LLaMA", "Ollama", "pandas", "scikit-learn", "MongoDB", "MySQL",
+    "SQLite", "Redis", "BullMQ", "Docker", "Git", "GitHub", "Postman", "Jest",
+    "Playwright", "Vite", "Puppeteer", "Cloudinary",
+  ];
 
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   useCommandTerminalShortcut(
@@ -1057,7 +1083,7 @@ function Index() {
             </h1>
             <Reveal delay={300}>
               <p className="text-[#999] text-base md:text-lg mt-8 max-w-lg leading-relaxed">
-                Final-year Software Engineering student at the Faculty of Science of Monastir (FSM), specializing in full-stack development with applied AI. Builds production-grade platforms — from AI-powered candidate ranking pipelines to real-time HR systems — using the MERN stack and modern LLM tooling.
+                Software Engineering graduate (FSM, 2026), now in my first year of a Master's in Information Systems Engineering. I build full-stack platforms with applied AI, from CV-ranking pipelines and model-drift monitoring to AI-assisted scheduling, using the MERN stack, Python and modern LLM tooling.
               </p>
             </Reveal>
             <Reveal delay={400}>
@@ -1085,7 +1111,7 @@ function Index() {
               { t: "▸ uploading 247 assets to edge", c: "text-[#999]" },
               { t: "▸ warming inference cache", c: "text-[#999]" },
               { t: "✓ deployed in 1.4s", c: "text-[#27c93f]" },
-              { t: "✓ ready at https://alex.dev", c: "text-[#27c93f]" },
+              { t: "✓ ready for production", c: "text-[#27c93f]" },
               { t: "$ _", c: "text-[#7c3aed]" },
             ]}
           />
@@ -1121,7 +1147,7 @@ function Index() {
               <SectionTag>About Me</SectionTag>
               <Heading a="Code with intent." b="AI with purpose." />
               <Reveal delay={300} className="space-y-5 text-[#999] leading-relaxed mt-16 block">
-                <p>Final-year Software Engineering student at FSM (graduating June 2026), passionate about full-stack development with a deep focus on applied AI. Experienced across the MERN stack, REST API architecture, and LLM integration — recently architected an AI-powered CV ranking pipeline using Groq (LLaMA 3.1) and vector embeddings for an enterprise HR platform. Comfortable owning a project end-to-end: database design, backend logic, real-time systems, and polished UI. Curious, calm under pressure, and driven to ship things that actually work in production.</p>
+                <p>Software Engineering graduate from FSM (June 2026), now pursuing a Master's in Information Systems Engineering. Passionate about full-stack development with a deep focus on applied AI. Across the MERN stack, REST API design and LLM integration, I have built an AI-powered CV ranking pipeline for an enterprise HR platform (Groq + vector embeddings), an AI-assisted booking SaaS, and a statistical model-drift monitoring system for fraud detection. I own projects end-to-end: database, backend, real-time systems and polished UI. Curious, calm under pressure, driven to ship things that work.</p>
               </Reveal>
             </div>
             <div className="md:basis-[45%] md:min-w-0 flex flex-col items-center gap-2">
@@ -1167,9 +1193,9 @@ function Index() {
                 <div className="bg-[#0a0a0a] border border-[#1e1e1e] p-8 font-mono text-[13px] space-y-5">
                   {[
                     ["LOCATION", "Monastir, Tunisia"],
-                    ["STATUS", "Final-Year Student, Available for Internship"],
+                    ["STATUS", "Master's student, open to part-time, internship & freelance"],
                     ["FOCUS", "Full-Stack + Applied AI"],
-                    ["CURRENTLY", "Software Engineering Intern @ DotJcoM"],
+                    ["LAST ROLE", "AI Analyst Intern @ ZeTheta"],
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between border-b border-[#1e1e1e] pb-4 last:border-0 last:pb-0">
                       <span className="text-[#555] uppercase tracking-[0.2em] text-[11px]"><BinaryText text={`${k} →`} /></span>
@@ -1190,14 +1216,14 @@ function Index() {
           <SectionTag>Stack</SectionTag>
           <Heading a="Every layer." b="One engineer." />
           <div className="dot-line mt-12" />
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-8">
             {[
-              { group: "Languages", items: ["Java", "C#", "C++", "Python", "C", "JavaScript", "TypeScript"] },
-              { group: "Frontend", items: ["React", "HTML", "CSS", "Tailwind CSS", "DaisyUI"] },
-              { group: "Backend", items: ["Node.js", "Express.js", "REST APIs", "Socket.io", "JWT", "Swagger/OpenAPI"] },
-              { group: "AI / ML", items: ["Groq (LLaMA 3.1)", "Vector Embeddings", "Cosine Similarity Scoring", "face-api.js"] },
-              { group: "Databases", items: ["MongoDB", "MySQL", "SQLite"] },
-              { group: "Tools & Testing", items: ["Git", "GitHub", "Postman", "Jest", "Playwright", "Docker", "Cloudinary", "Puppeteer"] },
+              { group: "Languages", items: ["Python", "TypeScript", "JavaScript", "(also studied: Java, C#, C++, C)"] },
+              { group: "Frontend", items: ["React 19", "TanStack Start", "Tailwind CSS", "Vite", "Recharts", "HTML/CSS"] },
+              { group: "Backend", items: ["Node.js", "Express.js", "REST APIs", "Socket.io", "JWT", "Zod", "Swagger/OpenAPI", "BullMQ"] },
+              { group: "AI / ML / Data", items: ["Groq (LLaMA)", "Ollama", "Vector Embeddings", "Cosine Similarity", "face-api.js", "pandas", "NumPy", "SciPy", "scikit-learn"] },
+              { group: "Databases", items: ["MongoDB", "MySQL", "SQLite", "Redis"] },
+              { group: "Tools & Testing", items: ["Git", "GitHub", "Postman", "Jest", "Playwright", "Docker", "Puppeteer", "Cloudinary"] },
             ].map((g, i) => (
               <Reveal key={g.group} delay={300 + i * 150}>
                 <div className="feature-card skill-card p-6 relative h-full">
@@ -1221,10 +1247,10 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4">
             {[
-              { n: 16, s: "+", l: "Modules Shipped" },
+              { n: 6, s: "", l: "Projects Built" },
               { n: 50, s: "+", l: "API Endpoints Built" },
-              { n: 4, s: "", l: "Production Projects" },
-              { n: 0, s: "", l: "Copy-Paste Code" },
+              { n: 16, s: "+", l: "Modules Shipped" },
+              { n: 284, s: "K+", l: "Transactions Analyzed" },
             ].map((stat, i) => (
               <div key={stat.l} className={`py-16 px-6 text-center ${i !== 0 ? "md:border-l border-[#1e1e1e]" : ""} ${i % 2 === 1 ? "border-l md:border-l border-[#1e1e1e]" : ""} ${i >= 2 ? "border-t md:border-t-0 border-[#1e1e1e]" : ""}`}>
                 <StatNumber value={stat.n} suffix={stat.s} />
@@ -1249,10 +1275,54 @@ function Index() {
           <Heading a="Things I've built." b="That actually ship." />
           <div className="grid md:grid-cols-2 gap-4 mt-16">
             {[
-              { id: "hrcom" as const, tag: "FULL-STACK · AI", title: "HRcoM", desc: "Enterprise HR & internship management platform with an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings), facial recognition attendance, real-time notifications via Socket.io, and 50+ documented REST endpoints.", stack: ["React", "TypeScript", "Node.js", "MongoDB", "Groq", "Socket.io"] },
-              { id: "thinkboard" as const, tag: "FULL-STACK", title: "ThinkBoard", desc: "A MERN-stack note-taking app with full CRUD functionality, rate limiting via Upstash, Tailwind + DaisyUI interface, deployed on Render with uptime monitoring.", stack: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"] },
-              { id: "internshive" as const, tag: "FULL-STACK", title: "InternsHive", desc: "A full-stack internship platform built with a colleague — user authentication, CRUD operations, and a responsive UI for a seamless internship search experience.", stack: ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "SQLite"] },
-              { id: "jobquest" as const, tag: "FRONT-END", title: "JobQuest", desc: "A LinkedIn-style professional networking platform with responsive layouts and interactive features, designed and built independently from concept to deployment.", stack: ["HTML", "CSS", "JavaScript"] },
+              {
+                id: "hrcom" as const,
+                tag: "FULL-STACK · AI",
+                title: "HRcoM",
+                desc: "Enterprise HR & internship management platform with an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings), facial recognition attendance, real-time notifications via Socket.io, and 50+ documented REST endpoints.",
+                stack: ["React", "TypeScript", "Node.js", "MongoDB", "Groq", "Socket.io"],
+                link: PROJECT_LINKS.hrcom,
+              },
+              {
+                id: "chrofa" as const,
+                tag: "FULL-STACK · AI",
+                title: "CHROFA",
+                desc: "AI-powered multi-tenant booking SaaS for service businesses. Public booking portal with real-time slot-conflict prevention, admin dashboard with analytics, a Groq/Ollama assistant for natural-language booking, WhatsApp and email reminders, and two-way Google Calendar sync.",
+                stack: ["React 19", "TanStack Start", "Node.js", "MongoDB", "Redis", "Groq"],
+                link: PROJECT_LINKS.chrofa,
+              },
+              {
+                id: "driftMonitor" as const,
+                tag: "ML · DATA",
+                title: "AI Model Drift & Observability Monitoring System",
+                desc: "End-to-end drift monitoring for fraud detection. Separates data drift (two-sample KS tests on 29 features) from concept drift (2-of-3 rule on recall, F1 and ROC-AUC), validated by 5 controlled scenarios on 284,807 transactions, with a React observability dashboard.",
+                stack: ["Python", "pandas", "SciPy", "scikit-learn", "React", "TypeScript", "Recharts"],
+                link: PROJECT_LINKS.driftMonitor,
+              },
+              {
+                id: "thinkboard" as const,
+                tag: "FULL-STACK",
+                title: "ThinkBoard",
+                desc: "A MERN-stack note-taking app with full CRUD functionality, rate limiting via Upstash, Tailwind + DaisyUI interface, deployed on Render with uptime monitoring.",
+                stack: ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"],
+                link: PROJECT_LINKS.thinkboard,
+              },
+              {
+                id: "internshive" as const,
+                tag: "FULL-STACK",
+                title: "InternsHive",
+                desc: "A full-stack internship platform built with a colleague — user authentication, CRUD operations, and a responsive UI for a seamless internship search experience.",
+                stack: ["HTML", "CSS", "JavaScript", "Node.js", "Express.js", "SQLite"],
+                link: PROJECT_LINKS.internshive,
+              },
+              {
+                id: "jobquest" as const,
+                tag: "FRONT-END",
+                title: "JobQuest",
+                desc: "A LinkedIn-style professional networking platform with responsive layouts and interactive features, designed and built independently from concept to deployment.",
+                stack: ["HTML", "CSS", "JavaScript"],
+                link: PROJECT_LINKS.jobquest,
+              },
             ].map((p, i) => (
               <Reveal key={p.title} delay={300 + i * 150}>
                 <div className="feature-card p-7 flex flex-col h-full relative">
@@ -1267,7 +1337,16 @@ function Index() {
                         <span key={s} className="font-mono text-[11px] text-[#999] border border-[#1e1e1e] px-2 py-1"><BinaryText text={s} /></span>
                       ))}
                     </div>
-                    <a href="#" className="block mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"><BinaryText text="View Project" /> ↗</a>
+                    {p.link ? (
+                      <a
+                        href={p.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"
+                      >
+                        <BinaryText text={p.link.includes("github.com") ? "View on GitHub" : "View Project"} /> ↗
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </Reveal>
@@ -1339,9 +1418,10 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <SectionTag>Recognition</SectionTag>
           <Heading a="Still early." b="Building my track record." />
-          <div className="grid md:grid-cols-3 gap-4 mt-16">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
             {[
-              { q: "Final-year Software Engineering at FSM. Coursework spans AI, database systems, software architecture, and full-stack development.", n: "Education", r: "FSM — Software Engineering" },
+              { q: "Software Engineering degree, FSM (2026). Now in the first year of a Master's in Information Systems Engineering.", n: "Education", r: "FSM · Master's" },
+              { q: "Internship completion certificate from ZeTheta (AI Analyst Intern, 2026).", n: "Certificate", r: "ZeTheta" },
               { q: "Self-motivated learner. Problem solver. Calm under pressure. Comfortable owning projects end-to-end from database design to polished UI.", n: "Soft Skills", r: "Driven & detail-oriented" },
               { q: "Arabic — Native / English — Fluent / French — Intermediate", n: "Languages", r: "Multilingual communicator" },
             ].map((t, i) => (
@@ -1382,11 +1462,11 @@ function Index() {
           <div className="grid md:grid-cols-2 gap-12 mt-16 items-start">
             <div>
               <p className="text-[#999] text-lg leading-relaxed max-w-md">
-                Got a project that needs shipping? An idea that needs an engineer? I'm available for internships and collaborations — let's talk.
+                Got a project that needs shipping? I'm open to part-time roles, internships and freelance work. Let's talk.
               </p>
               <div className="flex flex-wrap gap-3 mt-10">
                 <FilledBtn href="mailto:malekbensalah056@gmail.com">Send a Message</FilledBtn>
-                <GhostBtn href="#">Download CV</GhostBtn>
+                <GhostBtn href={CV_FILE_PATH}>Download CV</GhostBtn>
               </div>
             </div>
             <div className="bg-[#0d0d0d] border border-[#222]">
@@ -1422,20 +1502,32 @@ function Index() {
       {/* FOOTER */}
       <footer className="bg-[#141414] py-16">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-10">
+          <div className="grid md:grid-cols-3 gap-10">
             <div>
               <div className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></div>
-              <p className="text-[#666] text-sm mt-4 max-w-xs">Built with precision. No copy-paste.</p>
+              <p className="text-[#666] text-sm mt-4 max-w-xs">Built with precision. Shipped with AI.</p>
             </div>
             {[
-              { h: "Work", l: ["Projects", "Case Studies", "Open Source"] },
-              { h: "Connect", l: ["Email", "GitHub", "LinkedIn"] },
-              { h: "Legal", l: ["Privacy", "Imprint", "Colophon"] },
+              {
+                h: "Work",
+                l: [
+                  { t: "Projects", href: "#projects" },
+                  { t: "Experience", href: "#experience" },
+                ],
+              },
+              {
+                h: "Connect",
+                l: [
+                  { t: "Email", href: "mailto:malekbensalah056@gmail.com" },
+                  { t: "GitHub", href: "https://github.com/malekbensalah" },
+                  { t: "LinkedIn", href: "https://linkedin.com/in/malek-bensalah-a2307b295" },
+                ],
+              },
             ].map((c) => (
               <div key={c.h}>
                 <div className="text-[11px] uppercase tracking-[0.25em] text-[#555] mb-5"><BinaryText text={`▪ ${c.h}`} /></div>
                 <ul className="space-y-3">
-                  {c.l.map((i) => <li key={i}><a href="#" className="nav-link text-[#999] hover:text-white text-sm"><BinaryText text={i} /></a></li>)}
+                  {c.l.map((i) => <li key={i.t}><a href={i.href} className="nav-link text-[#999] hover:text-white text-sm"><BinaryText text={i.t} /></a></li>)}
                 </ul>
               </div>
             ))}
@@ -1445,12 +1537,12 @@ function Index() {
             {/* Status row: availability dot + status + local time */}
             <div className="flex items-center gap-3">
               <span className="status-dot" aria-hidden="true" />
-              <span>available for internship</span>
+              <span>open to part-time, internship & freelance</span>
               <span className="text-[#1e1e1e]">·</span>
               <FooterClock />
               <span className="text-[#555]">TN</span>
             </div>
-            <div><BinaryText text="Built with precision. No copy-paste." /></div>
+            <div><BinaryText text="Built with precision. Shipped with AI." /></div>
           </div>
         </div>
       </footer>

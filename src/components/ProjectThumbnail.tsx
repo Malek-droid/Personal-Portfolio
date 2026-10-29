@@ -9,7 +9,7 @@ export const RGB_FILTER_ID = "rgb-split-filter";
 interface ProjectThumbnailProps {
   title: string;
   tag: string;
-  type: "hrcom" | "thinkboard" | "internshive" | "jobquest";
+  type: "hrcom" | "chrofa" | "driftMonitor" | "thinkboard" | "internshive" | "jobquest";
   className?: string;
 }
 
@@ -88,6 +88,32 @@ export function ProjectThumbnail({ title, tag, type, className }: ProjectThumbna
             <div className="flex justify-between text-[9px] text-[#555]">
               <span>Embedding Score</span>
               <span>0.94 cosine</span>
+            </div>
+          </div>
+        )}
+
+        {type === "chrofa" && (
+          <div className="w-full flex flex-col gap-1.5 px-3 font-mono text-[10px] text-[#888] relative z-10">
+            <div className="flex items-center justify-between text-[#7c3aed]">
+              <span>[AI_BOOKING_SAAS]</span>
+              <span className="text-[9px] text-[#555]">Groq · Ollama</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1 text-[9px]">
+              <span className="border border-[#222] bg-[#121212] px-2 py-1 text-[#aaa]">Slot Sync</span>
+              <span className="border border-[#222] bg-[#121212] px-2 py-1 text-[#7c3aed]">WhatsApp · GCal</span>
+            </div>
+          </div>
+        )}
+
+        {type === "driftMonitor" && (
+          <div className="w-full flex flex-col gap-1.5 px-3 font-mono text-[10px] text-[#888] relative z-10">
+            <div className="flex items-center justify-between text-[#ffbd2e]">
+              <span>[DRIFT_OBSERVABILITY]</span>
+              <span className="text-[9px] text-[#555]">SciPy · Recharts</span>
+            </div>
+            <div className="bg-[#121212] border border-[#222] p-1.5 text-[9px] text-[#aaa] rounded flex justify-between">
+              <code>KS-test (29 feat)</code>
+              <span className="text-[#27c93f]">2-of-3 rule</span>
             </div>
           </div>
         )}
@@ -197,3 +223,4 @@ export function RgbSplitFilter() {
     </svg>
   );
 }
+

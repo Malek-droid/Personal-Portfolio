@@ -11,24 +11,27 @@ export interface TerminalCommand {
 
 const WHOAMI_TEXT = [
   "Malek Ben Salah",
-  "Final-year Software Engineering student at FSM (graduating June 2026),",
-  "specializing in full-stack development with applied AI.",
-  "Experienced across MERN, REST APIs, and LLM integration.",
+  "Software Engineering graduate (FSM, 2026), now in my first year of a Master's",
+  "in Information Systems Engineering. I build full-stack platforms with applied AI.",
+  "Open to part-time, internship & freelance.",
 ];
 
 const PROJECTS_DATA = [
   "▪ HRcoM: Enterprise HR & internship management platform with AI CV ranking (Groq LLaMA 3.1 + vector embeddings) [React, TypeScript, Node.js, MongoDB, Groq, Socket.io]",
+  "▪ CHROFA: AI-powered multi-tenant booking SaaS for service businesses [React 19, TanStack Start, Node.js, MongoDB, Redis, Groq]",
+  "▪ AI Model Drift & Observability Monitoring System: End-to-end drift monitoring for financial fraud detection [Python, pandas, SciPy, scikit-learn, React, TypeScript, Recharts]",
   "▪ ThinkBoard: MERN-stack note-taking app with rate limiting via Upstash [MongoDB, Express.js, React, Node.js, Tailwind CSS]",
   "▪ InternsHive: Full-stack internship platform with auth and CRUD [HTML, CSS, JavaScript, Node.js, Express.js, SQLite]",
   "▪ JobQuest: Professional networking platform [HTML, CSS, JavaScript]",
 ];
 
 const STACK_TEXT = [
-  "Languages: Java, C#, C++, Python, C, JavaScript, TypeScript",
-  "Front-End: React, HTML, CSS, Tailwind CSS, DaisyUI",
-  "Back-End: Node.js, Express.js, REST APIs, Socket.io, JWT, Swagger",
-  "AI & Data: Groq, LLaMA 3.1, MongoDB, MySQL, SQLite",
-  "DevOps & Tools: Git, GitHub, Postman, Jest, Playwright, Docker, Cloudinary, Puppeteer",
+  "Languages: Python, TypeScript, JavaScript (also studied: Java, C#, C++, C)",
+  "Frontend: React 19, TanStack Start, Tailwind CSS, Vite, Recharts, HTML/CSS",
+  "Backend: Node.js, Express.js, REST APIs, Socket.io, JWT, Zod, Swagger/OpenAPI, BullMQ",
+  "AI / ML / Data: Groq (LLaMA), Ollama, Vector Embeddings, Cosine Similarity, face-api.js, pandas, NumPy, SciPy, scikit-learn",
+  "Databases: MongoDB, MySQL, SQLite, Redis",
+  "Tools & Testing: Git, GitHub, Postman, Jest, Playwright, Docker, Puppeteer, Cloudinary",
 ];
 
 const CONTACT_DATA = [

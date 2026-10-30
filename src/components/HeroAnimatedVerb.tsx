@@ -41,7 +41,7 @@ export function HeroAnimatedVerb() {
       if (w && el) {
         const rect = el.getBoundingClientRect();
         if (rect.width > 0) {
-          widthsRef.current[w] = rect.width;
+          widthsRef.current[w] = Math.ceil(rect.width) + 2;
         }
       }
     }
@@ -139,7 +139,10 @@ export function HeroAnimatedVerb() {
   // Accessibility: prefers-reduced-motion renders "think" immediately
   if (isReduced) {
     return (
-      <span className="inline-block" aria-hidden="true">
+      <span
+        className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-[#a78bfa]"
+        aria-hidden="true"
+      >
         think
       </span>
     );
@@ -172,14 +175,10 @@ export function HeroAnimatedVerb() {
 
       {/* Spring-animated width container (Framer Motion) */}
       <motion.span
-        className="inline-block overflow-hidden align-baseline relative text-left"
+        className="inline-flex overflow-hidden align-baseline relative text-left"
         animate={{ width: containerWidth ? containerWidth : "auto" }}
         transition={HERO_VERB_CONFIG.spring}
         style={{
-          paddingTop: "0.12em",
-          paddingBottom: "0.15em",
-          marginTop: "-0.12em",
-          marginBottom: "-0.15em",
           verticalAlign: "baseline",
         }}
         aria-hidden="true"
@@ -197,6 +196,7 @@ export function HeroAnimatedVerb() {
             }}
             className={cn(
               "inline-block whitespace-nowrap select-none",
+              "text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-[#a78bfa] drop-shadow-[0_0_8px_rgba(168,85,247,0.35)]",
               isFinalGlow && "hero-verb-glow-char"
             )}
           >

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Dark squircle background with subtle border -->
+  <rect width="64" height="64" rx="14" fill="#09090b"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" stroke="#27272a" stroke-width="1"/>
+  
+  <!-- Cat Ears -->
+  <path d="M14 26 L22 10 L30 23 Z" fill="#ffffff" />
+  <path d="M16 24 L22 13 L28 22 Z" fill="#f43f5e" opacity="0.3" />
+  
+  <path d="M50 26 L42 10 L34 23 Z" fill="#ffffff" />
+  <path d="M48 24 L42 13 L36 22 Z" fill="#f43f5e" opacity="0.3" />
+
+  <!-- Cat Head -->
+  <path d="M16 26 C16 19 48 19 48 26 C53 32 54 44 48 50 C42 56 22 56 16 50 C10 44 11 32 16 26 Z" fill="#ffffff"/>
+
+  <!-- Left Eye: Heterochromia Blue (#38bdf8) -->
+  <ellipse cx="24" cy="35" rx="4.5" ry="5.5" fill="#0ea5e9"/>
+  <ellipse cx="24" cy="35" rx="3.5" ry="4.5" fill="#38bdf8"/>
+  <ellipse cx="24" cy="35" rx="1.8" ry="4" fill="#0f172a"/>
+  <circle cx="25.5" cy="33" r="1.2" fill="#ffffff"/>
+
+  <!-- Right Eye: Heterochromia Amber (#f59e0b) -->
+  <ellipse cx="40" cy="35" rx="4.5" ry="5.5" fill="#d97706"/>
+  <ellipse cx="40" cy="35" rx="3.5" ry="4.5" fill="#fbbf24"/>
+  <ellipse cx="40" cy="35" rx="1.8" ry="4" fill="#0f172a"/>
+  <circle cx="41.5" cy="33" r="1.2" fill="#ffffff"/>
+
+  <!-- Nose & Mouth -->
+  <path d="M30.5 41 L33.5 41 L32 43 Z" fill="#f43f5e"/>
+  <path d="M32 43 C31 44.5 29 44.5 28 43.5 M32 43 C33 44.5 35 44.5 36 43.5" stroke="#a1a1aa" stroke-width="1.2" stroke-linecap="round"/>
+</svg>
+

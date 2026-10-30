@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { TypingAnimation } from "@/components/ui/TypingAnimation";
 import { AnimatedSpan } from "@/components/ui/AnimatedSpan";
+import { MbMonogram } from "@/components/MbMonogram";
 
 /* ── Named constants ── */
 const BOOT_SESSION_KEY = "malek_booted";
@@ -142,7 +143,7 @@ export function BootSequence() {
           fontFamily: '"Space Mono", ui-monospace, monospace',
         }}
       >
-        {/* Title bar — no macOS dots */}
+        {/* Title bar — MB monogram + label */}
         <div
           style={{
             padding: "10px 16px",
@@ -150,8 +151,10 @@ export function BootSequence() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: "10px",
           }}
         >
+          <MbMonogram size="xs" />
           <span style={{ fontSize: "10px", letterSpacing: "0.25em", textTransform: "uppercase", color: "#444" }}>
             malek.dev — terminal
           </span>

@@ -12,6 +12,9 @@ import { GlitchReveal } from "@/components/GlitchReveal";
 import { HeroAnimatedVerb } from "@/components/HeroAnimatedVerb";
 import { ScrollConvergeText } from "@/components/ScrollConvergeText";
 import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
+import { MbMonogram } from "@/components/MbMonogram";
+import { CatMark } from "@/components/CatMark";
+import { cn } from "@/lib/utils";
 import {
   useScroll,
   useTransform,
@@ -29,6 +32,78 @@ export const PROJECT_LINKS = {
 };
 
 export const CV_FILE_PATH = "#"; // original was href="#" — restored
+
+/**
+ * Plain floating words (particles) around the cat in the About section.
+ * Edit this array to customize words, coordinates, scale, and animation loops.
+ */
+export const CAT_FLOATING_WORDS: Array<{
+  text: string;
+  className: string;
+  style: React.CSSProperties;
+  showOnMobile: boolean;
+}> = [
+  {
+    text: "TypeScript",
+    className: "text-[#c4b5fd] text-[13px] font-bold opacity-80",
+    style: { top: "-18px", left: "-6px", animation: "catWordFloat1 6.5s ease-in-out -1.4s infinite" },
+    showOnMobile: true,
+  },
+  {
+    text: "Python",
+    className: "text-[#a78bfa] text-[11px] font-semibold opacity-75",
+    style: { top: "36px", right: "-42px", animation: "catWordFloat2 7.2s ease-in-out -3.8s infinite" },
+    showOnMobile: true,
+  },
+  {
+    text: "React",
+    className: "text-[#d4d4d8] text-[11px] opacity-70",
+    style: { top: "110px", left: "-46px", animation: "catWordFloat3 5.8s ease-in-out -0.9s infinite" },
+    showOnMobile: true,
+  },
+  {
+    text: "Node.js",
+    className: "text-[#a1a1aa] text-[10px] opacity-60",
+    style: { bottom: "46px", right: "-40px", animation: "catWordFloat4 8.0s ease-in-out -4.6s infinite" },
+    showOnMobile: true,
+  },
+  {
+    text: "AI agents",
+    className: "text-[#e4e4e7] text-[11px] opacity-65",
+    style: { top: "-24px", right: "18px", animation: "catWordFloat5 6.8s ease-in-out -2.2s infinite" },
+    showOnMobile: false,
+  },
+  {
+    text: "RAG",
+    className: "text-[#a1a1aa] text-[10px] opacity-50",
+    style: { top: "180px", left: "-40px", animation: "catWordFloat1 7.6s ease-in-out -5.1s infinite" },
+    showOnMobile: false,
+  },
+  {
+    text: "MongoDB",
+    className: "text-[#71717a] text-[10px] opacity-50",
+    style: { bottom: "-12px", left: "18px", animation: "catWordFloat2 8.4s ease-in-out -1.7s infinite" },
+    showOnMobile: false,
+  },
+  {
+    text: "Tailwind",
+    className: "text-[#a1a1aa] text-[10px] opacity-55",
+    style: { top: "130px", right: "-44px", animation: "catWordFloat3 6.2s ease-in-out -3.4s infinite" },
+    showOnMobile: false,
+  },
+  {
+    text: "LLMs",
+    className: "text-[#d4d4d8] text-[11px] opacity-65",
+    style: { bottom: "12px", right: "-32px", animation: "catWordFloat4 7.0s ease-in-out -0.6s infinite" },
+    showOnMobile: false,
+  },
+  {
+    text: "Docker",
+    className: "text-[#71717a] text-[9px] opacity-45",
+    style: { bottom: "-14px", right: "48px", animation: "catWordFloat5 8.8s ease-in-out -6.3s infinite" },
+    showOnMobile: false,
+  },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -322,7 +397,7 @@ const THRESHOLD_NODE_2 = 0.78;
 
 const STACK_BADGES = ["React", "Node", "Mongo", "Groq", "JWT", "+N"] as const;
 
-const CatMark = ({ strokeColor = "#7c3aed" }: { strokeColor?: string }) => (
+const WorkflowCatIcon = ({ strokeColor = "#7c3aed" }: { strokeColor?: string }) => (
   <svg
     viewBox="0 0 24 24"
     width="22"
@@ -603,7 +678,7 @@ const RequestPath = () => {
                 : "border-[#1e1e1e] bg-[#0a0a0a]"
             }`}
           >
-            <CatMark strokeColor={isLit1 ? "#7c3aed" : "#444"} />
+            <WorkflowCatIcon strokeColor={isLit1 ? "#7c3aed" : "#444"} />
             <div
               className={`font-mono text-[10px] uppercase tracking-[0.2em] transition-colors duration-300 ${
                 isLit1 ? "text-[#7c3aed]" : "text-[#444]"
@@ -987,7 +1062,7 @@ const SystemStatus = () => (
 const ConsensusCard = ({ role, company, lines, outcome }: { role: string; company: string; lines: string[]; outcome: string }) => (
   <div className="mt-8 bg-[#0a0a0a] border border-[#1e1e1e]">
     <div className="flex items-center gap-4 px-5 py-4 border-b border-[#1e1e1e]">
-      <div className="w-10 h-10 rounded-full bg-[#7c3aed] flex items-center justify-center text-white font-black text-sm">MB</div>
+      <CatMark size={40} className="w-10 h-10" />
       <div>
         <div className="text-white text-sm font-bold"><BinaryText text="Malek Ben Salah" /></div>
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#555]"><BinaryText key={`${role} · ${company}`} text={`${role} · ${company}`} /></div>
@@ -1091,7 +1166,11 @@ function Index() {
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-[#0d0d0d] border-b border-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#" className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></a>
+          {/* Desktop wordmark / Mobile monogram */}
+          <a href="#" className="flex items-center gap-2.5" aria-label="Malek Ben Salah — Home">
+            <MbMonogram size="sm" className="md:hidden" />
+            <span className="hidden md:inline font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></span>
+          </a>
           <div className="hidden md:flex items-center gap-8 text-[13px] text-[#999]">
             <a href="#about" className="nav-link hover:text-white"><BinaryText text="About" /></a>
             <a href="#projects" className="nav-link hover:text-white"><BinaryText text="Projects" /></a>
@@ -1112,7 +1191,7 @@ function Index() {
           <div>
             <SectionTag>AI-Driven Full-Stack Developer</SectionTag>
             <h1
-              className="font-black text-4xl sm:text-5xl md:text-7xl leading-[0.97] tracking-[-0.03em] font-display"
+              className="font-black text-4xl sm:text-5xl md:text-7xl leading-[1.05] tracking-[-0.03em] font-display"
               aria-label="I build systems. That think for themselves."
             >
               <Reveal delay={100}>
@@ -1121,11 +1200,8 @@ function Index() {
                 </span>
               </Reveal>
               <Reveal delay={200}>
-                <span className="block text-[#555]" aria-hidden="true">
-                  <span className="inline-block whitespace-nowrap">
-                    That <HeroAnimatedVerb /> for
-                  </span>{" "}
-                  <span className="block">themselves.</span>
+                <span className="block text-[#a1a1aa]" aria-hidden="true">
+                  That <HeroAnimatedVerb /> for themselves.
                 </span>
               </Reveal>
             </h1>
@@ -1209,6 +1285,23 @@ function Index() {
                     className="cat-glow absolute inset-4 -z-10 rounded-full bg-[#7c3aed] opacity-20 blur-2xl pointer-events-none"
                     aria-hidden="true"
                   />
+
+                  {/* Plain floating words (particles) around the cat */}
+                  {CAT_FLOATING_WORDS.map((w) => (
+                    <span
+                      key={w.text}
+                      aria-hidden="true"
+                      className={cn(
+                        "cat-float-word font-mono tracking-wider pointer-events-none select-none absolute z-10 whitespace-nowrap",
+                        w.className,
+                        !w.showOnMobile && "hidden sm:inline-block"
+                      )}
+                      style={w.style}
+                    >
+                      {w.text}
+                    </span>
+                  ))}
+
                   <img
                     src="/cat.svg"
                     alt="Illustration of my cat"
@@ -1567,7 +1660,7 @@ function Index() {
                   ["EMAIL", "malekbensalah056@gmail.com"],
                   ["PHONE", "+216 93 113 619"],
                   ["LINKEDIN", "linkedin.com/in/malek-bensalah-a2307b295"],
-                  ["GITHUB", "github.com/malekbensalah"],
+                  ["GITHUB", "github.com/Malek-droid"],
                   ["LOCATION", "Monastir, Tunisia"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between border-b border-[#1e1e1e] pb-3 last:border-0 last:pb-0">
@@ -1586,7 +1679,10 @@ function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-10">
             <div>
-              <div className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></div>
+              <div className="flex items-center gap-3">
+                <MbMonogram size="sm" />
+                <div className="font-black text-white tracking-tight text-lg"><BinaryText text="MALEK BEN SALAH" /><span className="text-[#7c3aed]">.</span></div>
+              </div>
               <p className="text-[#666] text-sm mt-4 max-w-xs">Built with precision. Shipped with AI.</p>
             </div>
             {[
@@ -1601,7 +1697,7 @@ function Index() {
                 h: "Connect",
                 l: [
                   { t: "Email", href: "mailto:malekbensalah056@gmail.com" },
-                  { t: "GitHub", href: "https://github.com/malekbensalah" },
+                  { t: "GitHub", href: "https://github.com/Malek-droid" },
                   { t: "LinkedIn", href: "https://linkedin.com/in/malek-bensalah-a2307b295" },
                 ],
               },

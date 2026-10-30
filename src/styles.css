@@ -563,24 +563,13 @@ html[data-booting] body { visibility: hidden; }
 /* ── Hero Headline Verb Glow Sweep ── */
 @keyframes heroVerbGlow {
   0% {
-    color: #555555;
-    text-shadow: 0 0 0 rgba(124, 58, 237, 0);
+    filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
   }
-  30% {
-    color: #ffffff;
-    text-shadow:
-      0 0 16px rgba(139, 92, 246, 0.95),
-      0 0 32px rgba(124, 58, 237, 0.7);
-  }
-  60% {
-    color: #ddd6fe;
-    text-shadow:
-      0 0 20px rgba(139, 92, 246, 0.7),
-      0 0 36px rgba(124, 58, 237, 0.45);
+  35% {
+    filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.95)) drop-shadow(0 0 28px rgba(124, 58, 237, 0.65));
   }
   100% {
-    color: #555555;
-    text-shadow: 0 0 0 rgba(124, 58, 237, 0);
+    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.35));
   }
 }
 
@@ -591,6 +580,124 @@ html[data-booting] body { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .hero-verb-glow-char {
     animation: none !important;
-    text-shadow: none !important;
+    filter: none !important;
+  }
+}
+
+/* ── Cat Floating Words (Particles) ── */
+@keyframes catWordFloat1 {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.15;
+  }
+  30% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(5px, -10px, 0) rotate(2.5deg);
+    opacity: 0.75;
+  }
+  75% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.15;
+  }
+}
+
+@keyframes catWordFloat2 {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(-6px, 9px, 0) rotate(-2deg);
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.2;
+  }
+}
+
+@keyframes catWordFloat3 {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.1;
+  }
+  35% {
+    opacity: 0.75;
+  }
+  55% {
+    transform: translate3d(4px, -8px, 0) rotate(-2.5deg);
+    opacity: 0.65;
+  }
+  85% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.1;
+  }
+}
+
+@keyframes catWordFloat4 {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.25;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  60% {
+    transform: translate3d(-5px, 11px, 0) rotate(2deg);
+    opacity: 0.55;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.25;
+  }
+}
+
+@keyframes catWordFloat5 {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.15;
+  }
+  40% {
+    opacity: 0.85;
+  }
+  65% {
+    transform: translate3d(6px, -7px, 0) rotate(2.8deg);
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.15;
+  }
+}
+
+.cat-float-word {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-float-word {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.6 !important;
   }
 }

@@ -20,6 +20,16 @@ interface GitHubEvent {
   };
 }
 
+interface GitHubRepo {
+  id: number;
+  name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  pushed_at: string;
+  stargazers_count: number;
+}
+
 interface ActivityRow {
   id: string;
   typeLabel: string;
@@ -36,6 +46,7 @@ interface UserProfile {
   followers: number;
 }
 
+/** Cache key uses correct username — naturally busts stale "malekbensalah" cache */
 const CACHE_KEY = `gh_activity_${GITHUB_USERNAME}`;
 
 function formatRelativeTime(dateString: string): string {
@@ -122,12 +133,40 @@ function parseEvent(event: GitHubEvent): ActivityRow {
   };
 }
 
+/** Convert a repo to an ActivityRow for the repos-fallback view */
+function repoToRow(repo: GitHubRepo): ActivityRow {
+  const langColors: Record<string, string> = {
+    TypeScript: "text-[#3178c6] border-[#3178c6]/40",
+    JavaScript: "text-[#ffbd2e] border-[#ffbd2e]/40",
+    Python: "text-[#3572A5] border-[#3572A5]/40",
+    HTML: "text-[#e34c26] border-[#e34c26]/40",
+    CSS: "text-[#563d7c] border-[#563d7c]/40",
+    Java: "text-[#b07219] border-[#b07219]/40",
+    "C++": "text-[#f34b7d] border-[#f34b7d]/40",
+    Rust: "text-[#dea584] border-[#dea584]/40",
+  };
+  const lang = repo.language || "CODE";
+  const color = langColors[lang] || "text-[#7c3aed] border-[#7c3aed]/40";
+
+  return {
+    id: String(repo.id),
+    typeLabel: lang.toUpperCase().slice(0, 8),
+    typeColor: color,
+    repoName: repo.name,
+    repoUrl: repo.html_url,
+    message: repo.description || "No description",
+    linkUrl: repo.html_url,
+    timeAgo: formatRelativeTime(repo.pushed_at),
+  };
+}
+
 export function GitHubActivityTable() {
   const [rows, setRows] = useState<ActivityRow[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCached, setIsCached] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isReposFallback, setIsReposFallback] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -142,6 +181,7 @@ export function GitHubActivityTable() {
           if (cached.rows && cached.rows.length > 0) {
             setRows(cached.rows);
             if (cached.profile) setUserProfile(cached.profile);
+            if (cached.isReposFallback) setIsReposFallback(true);
             setIsCached(true);
             setLoading(false);
 
@@ -155,7 +195,7 @@ export function GitHubActivityTable() {
         // storage disabled or corrupted, proceed to fetch
       }
 
-      // 2. Fetch from GitHub API (unauthenticated client rate limit)
+      // 2. Fetch events + user profile in parallel
       try {
         const [eventsRes, userRes] = await Promise.allSettled([
           fetch(`https://api.github.com/users/${GITHUB_USERNAME}/events/public?per_page=10`),
@@ -166,6 +206,7 @@ export function GitHubActivityTable() {
 
         let parsedRows: ActivityRow[] = [];
         let profileData: UserProfile | null = null;
+        let usedReposFallback = false;
 
         if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
           const data: GitHubEvent[] = await eventsRes.value.json();
@@ -184,8 +225,30 @@ export function GitHubActivityTable() {
           };
         }
 
+        // 3. Repos fallback — shown when user works mostly on private repos
+        //    and the events API returns nothing useful.
+        if (parsedRows.length === 0) {
+          try {
+            const reposRes = await fetch(
+              `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=pushed&per_page=7&type=public`
+            );
+            if (!isCancelled && reposRes.ok) {
+              const repos: GitHubRepo[] = await reposRes.json();
+              if (Array.isArray(repos) && repos.length > 0) {
+                parsedRows = repos.map(repoToRow);
+                usedReposFallback = true;
+              }
+            }
+          } catch {
+            // repos fetch failed, leave parsedRows empty
+          }
+        }
+
+        if (isCancelled) return;
+
         if (parsedRows.length > 0) {
           setRows(parsedRows);
+          setIsReposFallback(usedReposFallback);
           if (profileData) setUserProfile(profileData);
           setErrorMsg(null);
           setIsCached(false);
@@ -198,18 +261,18 @@ export function GitHubActivityTable() {
                 timestamp: Date.now(),
                 rows: parsedRows,
                 profile: profileData,
+                isReposFallback: usedReposFallback,
               })
             );
           } catch {
             // quota exceeded or private mode
           }
         } else {
-          // If network failed and we have no rows yet
           if (rows.length === 0) {
-            setErrorMsg("No recent public events recorded");
+            setErrorMsg("No recent public activity recorded");
           }
         }
-      } catch (err) {
+      } catch {
         if (!isCancelled) {
           if (rows.length === 0) {
             setErrorMsg("GitHub unreachable");
@@ -238,7 +301,7 @@ export function GitHubActivityTable() {
             <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
           </div>
           <span className="text-[11px] uppercase tracking-[0.2em] text-[#888]">
-            git-activity.log — @{GITHUB_USERNAME}
+            {isReposFallback ? "repos-latest.log" : "git-activity.log"} — @{GITHUB_USERNAME}
           </span>
         </div>
 
@@ -251,7 +314,8 @@ export function GitHubActivityTable() {
           )}
           {rows.length > 0 && (
             <span>
-              <span className="text-[#7c3aed] font-bold">{rows.length}</span> Recent Events
+              <span className="text-[#7c3aed] font-bold">{rows.length}</span>{" "}
+              {isReposFallback ? "Latest Repos" : "Recent Events"}
             </span>
           )}
           {isCached && (
@@ -288,7 +352,7 @@ export function GitHubActivityTable() {
               key={row.id}
               className="flex items-center gap-3 sm:gap-4 px-5 py-3.5 hover:bg-[#111] transition-colors group"
             >
-              {/* Event Badge */}
+              {/* Event / Language Badge */}
               <span
                 className={`text-[9px] uppercase tracking-wider border px-1.5 py-0.5 rounded font-mono font-semibold flex-shrink-0 ${row.typeColor}`}
               >
@@ -307,7 +371,7 @@ export function GitHubActivityTable() {
 
               <span className="text-[#333] hidden sm:inline">·</span>
 
-              {/* Commit / Event Message */}
+              {/* Commit message / Repo description */}
               <a
                 href={row.linkUrl}
                 target="_blank"
@@ -342,7 +406,11 @@ export function GitHubActivityTable() {
 
       {/* Footer bar */}
       <div className="px-5 py-2.5 bg-[#0a0a0a] border-t border-[#1a1a1a] flex items-center justify-between text-[10px] text-[#555]">
-        <span>Auto-cached (10m TTL) · Zero client token exposure</span>
+        <span>
+          {isReposFallback
+            ? "Showing latest pushed repos — no recent public events"
+            : "Auto-cached (10m TTL) · Zero client token exposure"}
+        </span>
         <span className="text-[#27c93f]">● sync</span>
       </div>
     </div>

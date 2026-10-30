@@ -39,7 +39,7 @@ const CONTACT_DATA = [
   "  EMAIL:    malekbensalah056@gmail.com",
   "  PHONE:    +216 93 113 619",
   "  LINKEDIN: linkedin.com/in/malek-bensalah-a2307b295",
-  "  GITHUB:   github.com/malekbensalah",
+  "  GITHUB:   github.com/Malek-droid",
   "  LOCATION: Monastir, Tunisia",
   "→ Scrolling to Contact section...",
 ];

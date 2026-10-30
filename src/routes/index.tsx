@@ -14,6 +14,7 @@ import { ScrollConvergeText } from "@/components/ScrollConvergeText";
 import { ProjectThumbnail, RgbSplitFilter } from "@/components/ProjectThumbnail";
 import { MbMonogram } from "@/components/MbMonogram";
 import { CatMark } from "@/components/CatMark";
+import { DriftGallery, type GalleryImage } from "@/components/DriftGallery";
 import { cn } from "@/lib/utils";
 import {
   useScroll,
@@ -23,13 +24,40 @@ import {
 } from "motion/react";
 
 export const PROJECT_LINKS = {
-  hrcom: "#",       // original was href="#" — restored
+  hrcom: "https://hr.dotjcom.tech/login",
   chrofa: "",       // new project, no URL yet
-  driftMonitor: "", // new project, no URL yet
+  driftMonitor: "", // Company project - private deployment & source code
   thinkboard: "#",  // original was href="#" — restored
   internshive: "#", // original was href="#" — restored
   jobquest: "#",    // original was href="#" — restored
 };
+
+/**
+ * Gallery data for AI Model Drift Monitor company project.
+ */
+export const DRIFT_MONITOR_GALLERY: GalleryImage[] = [
+  {
+    src: "/projects/ai-drift-monitor-overview.png",
+    alt: "AI Model Drift Monitor overview showing the 8-stage pipeline and the overall drift verdict",
+    caption: "Overview: 8-stage pipeline and drift verdict.",
+    width: 1600,
+    height: 777,
+  },
+  {
+    src: "/projects/ai-drift-monitor-data-drift.png",
+    alt: "Top drifted features ranked by KS statistic, with a baseline versus monitoring performance table",
+    caption: "Data drift: 14 of 29 features flagged.",
+    width: 1600,
+    height: 816,
+  },
+  {
+    src: "/projects/ai-drift-monitor-temporal.png",
+    alt: "Line chart of recall, F1 and ROC-AUC across four monitoring windows, with recall dropping sharply in the last window",
+    caption: "Over time: recall drops sharply in W4.",
+    width: 1600,
+    height: 745,
+  },
+];
 
 export const CV_FILE_PATH = "#"; // original was href="#" — restored
 
@@ -1037,20 +1065,36 @@ const SystemStatus = () => (
         <WindowPanel label="status.log" tag="LIVE">
           <div className="divide-y divide-[#1a1a1a]">
             {[
-              { n: "HRcoM", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "HRcoM", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot", href: PROJECT_LINKS.hrcom },
               { n: "CHROFA", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
-              { n: "AI Model Drift Monitor", s: "DEPLOYED", statusClass: "text-[#27c93f]", dotClass: "live-dot" },
+              { n: "AI Model Drift Monitor", s: "COMPANY PROJECT", statusClass: "text-[#a78bfa]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
               { n: "ThinkBoard", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
               { n: "InternsHive", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
               { n: "JobQuest", s: "ON GITHUB", statusClass: "text-[#7c3aed]", dotClass: "w-2 h-2 rounded-full bg-[#7c3aed]" },
-            ].map((p, i) => (
-              <div key={p.n} className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-6 px-5 py-4">
-                <span className={p.dotClass} />
-                <span className="text-white text-sm font-bold">{p.n}</span>
-                <Sparkline seed={i} />
-                <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${p.statusClass}`}>{p.s}</span>
-              </div>
-            ))}
+            ].map((p, i) => {
+              const content = (
+                <div key={p.n} className="grid grid-cols-[24px_1fr_auto_auto] items-center gap-6 px-5 py-4 group transition-colors hover:bg-[#111]">
+                  <span className={p.dotClass} />
+                  <span className="text-white text-sm font-bold group-hover:text-[#a78bfa] transition-colors">{p.n}</span>
+                  <Sparkline seed={i} />
+                  <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${p.statusClass}`}>{p.s}</span>
+                </div>
+              );
+              return p.href ? (
+                <a
+                  key={p.n}
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Open ${p.n} live demo (opens in a new tab)`}
+                  className="block focus:outline-none focus:ring-1 focus:ring-[#7c3aed]"
+                >
+                  {content}
+                </a>
+              ) : (
+                content
+              );
+            })}
           </div>
         </WindowPanel>
       </Reveal>
@@ -1132,7 +1176,7 @@ function Index() {
         "Validated pipeline with 5 controlled scenarios",
         "Built React 19 + TypeScript observability dashboard",
       ],
-      outcome: "Open source on GitHub · 284K+ transactions analyzed · 5/5 scenarios passed",
+      outcome: "Delivered to the company · 284K+ transactions analyzed · 5/5 scenarios passed",
     },
   ];
   const groups = [
@@ -1436,6 +1480,8 @@ function Index() {
                 desc: "Enterprise HR & internship management platform with an AI-powered CV ranking pipeline (Groq LLaMA 3.1 + vector embeddings), facial recognition attendance, real-time notifications via Socket.io, and 50+ documented REST endpoints.",
                 stack: ["React", "TypeScript", "Node.js", "MongoDB", "Groq", "Socket.io"],
                 link: PROJECT_LINKS.hrcom,
+                linkText: "Live demo",
+                linkAriaLabel: "Open the HRcoM live demo (opens in a new tab)",
               },
               {
                 id: "chrofa" as const,
@@ -1449,9 +1495,12 @@ function Index() {
                 id: "driftMonitor" as const,
                 tag: "ML · DATA",
                 title: "AI Model Drift & Observability Monitoring System",
+                statusLabel: "COMPANY PROJECT",
+                note: "Built during my internship. Source code and deployment are private to the company.",
                 desc: "End-to-end drift monitoring for fraud detection. Separates data drift (two-sample KS tests on 29 features) from concept drift (2-of-3 rule on recall, F1 and ROC-AUC), validated by 5 controlled scenarios on 284,807 transactions, with a React observability dashboard.",
                 stack: ["Python", "pandas", "SciPy", "scikit-learn", "React", "TypeScript", "Recharts"],
-                link: PROJECT_LINKS.driftMonitor,
+                link: "",
+                gallery: DRIFT_MONITOR_GALLERY,
               },
               {
                 id: "thinkboard" as const,
@@ -1496,10 +1545,19 @@ function Index() {
                         href={p.link}
                         target={p.link.startsWith("http") ? "_blank" : undefined}
                         rel={p.link.startsWith("http") ? "noopener noreferrer" : undefined}
-                        className="block mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold"
+                        aria-label={"linkAriaLabel" in p ? p.linkAriaLabel : undefined}
+                        className="inline-flex items-center gap-1.5 mt-6 text-[12px] uppercase tracking-[0.2em] text-[#7c3aed] hover:text-white font-bold transition-colors"
                       >
-                        <BinaryText text={p.link.includes("github.com") ? "View on GitHub" : "View Project"} /> ↗
+                        <BinaryText text={"linkText" in p && p.linkText ? p.linkText : p.link.includes("github.com") ? "View on GitHub" : "View Project"} /> ↗
                       </a>
+                    ) : null}
+                    {"note" in p && p.note ? (
+                      <p className="mt-4 font-mono text-[11px] text-[#71717a] leading-relaxed">
+                        {p.note}
+                      </p>
+                    ) : null}
+                    {"gallery" in p && p.gallery ? (
+                      <DriftGallery images={p.gallery} />
                     ) : null}
                   </div>
                 </div>
